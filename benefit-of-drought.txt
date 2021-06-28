@@ -1,0 +1,7 @@
+"benefit-of-drought"
+{
+	"base"		"base"
+	"title"		"Benefit of Drought"
+	"maps"		"^gm_"
+	"menusystem"	"1"
+}
