@@ -96,8 +96,14 @@ end)
 net.Receive("drought_combat_beam", function()
 	local vPoint = net.ReadVector()
 	local vOrigin = net.ReadVector()
-		local effectdata = EffectData()
-		effectdata:SetStart(vOrigin)
-		effectdata:SetOrigin( vPoint )
-		util.Effect( "drought_test", effectdata )
+	local color = net.ReadUInt(4)
+--	local effect = net.ReadString()
+
+	local effectdata = EffectData()
+	effectdata:SetStart(vOrigin)
+	effectdata:SetOrigin(vPoint)
+	effectdata:SetColor(color)
+
+	util.Effect( "drought_combat_beam", effectdata )
 end)
+

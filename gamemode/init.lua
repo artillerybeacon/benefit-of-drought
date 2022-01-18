@@ -33,7 +33,21 @@ end
 function GM:PlayerSpawn(pl)
 	pl:StripWeapons()
 	pl:SetTeam(400)
+	pl:SetupHands() -- Create the hands and call GM:PlayerSetHandsModel
 	
+end
+
+-- Choose the model for hands according to their player model.
+function GM:PlayerSetHandsModel( ply, ent )
+
+	local simplemodel = player_manager.TranslateToPlayerModelName( ply:GetModel() )
+	local info = player_manager.TranslatePlayerHands( simplemodel )
+	if ( info ) then
+		ent:SetModel( info.model )
+		ent:SetSkin( info.skin )
+		ent:SetBodyGroups( info.body )
+	end
+
 end
 
 function GM:CanPlayerSuicide(ply)
@@ -52,6 +66,7 @@ function GM:PlayerDeathThink(ply)
 	if ply.Inventory and ply.Inventory.manzyfriend and SysTime() > ply.DeadTime + 1.5 then
 		PrintMessage(3, ply:Name() .. " was saved by their Manzy's Best Friend.")
 		ply:Spawn()
+		ply:SetTeam(1)
 		
 		ply.DeadTime = nil
 

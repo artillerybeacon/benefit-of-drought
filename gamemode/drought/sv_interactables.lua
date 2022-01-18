@@ -1,7 +1,18 @@
 local L = Log("drought:interactables")
 
 SetLoggingMode("drought:interactables", DROUGHT.Debug)
-
+--[[
+ ██▓███  ▓█████  ███▄    █  ██▓  ██████ 
+▓██░  ██▒▓█   ▀  ██ ▀█   █ ▓██▒▒██    ▒ 
+▓██░ ██▓▒▒███   ▓██  ▀█ ██▒▒██▒░ ▓██▄   
+▒██▄█▓▒ ▒▒▓█  ▄ ▓██▒  ▐▌██▒░██░  ▒   ██▒
+▒██▒ ░  ░░▒████▒▒██░   ▓██░░██░▒██████▒▒
+▒▓▒░ ░  ░░░ ▒░ ░░ ▒░   ▒ ▒ ░▓  ▒ ▒▓▒ ▒ ░
+░▒ ░      ░ ░  ░░ ░░   ░ ▒░ ▒ ░░ ░▒  ░ ░
+░░          ░      ░   ░ ░  ▒ ░░  ░  ░  
+            ░  ░         ░  ░        ░  
+                                        
+]]
 DROUGHT.Interactable = {}
 
 DROUGHT.Interactable.MaxRangeXY = 11000
@@ -10,7 +21,7 @@ DROUGHT.Interactable.MinRangeXY = -DROUGHT.Interactable.MaxRangeXY
 DROUGHT.Interactable.MaxRangeZ = DROUGHT.Interactable.MaxRangeXY / 2
 DROUGHT.Interactable.MinRangeZ = -DROUGHT.Interactable.MaxRangeZ
 
-DROUGHT.Interactable.LootAmount = 250
+DROUGHT.Interactable.LootAmount = 254
 
 DROUGHT.Interactable.LootGenerateMaxAttempts = 2500
 
@@ -102,7 +113,7 @@ end
 -- models/props_c17/gravestone_statue001a.mdl
 
 concommand.Add("bod_admin_resetmap", function(ply)
-	if IsValid(ply) and not ply:IsSuperAdmin() then return end
+	--if IsValid(ply) and not ply:IsSuperAdmin() then return end
 
 	L((ply == NULL and "Console man" or tostring(ply)) ..  "forced a map cleanup")
 

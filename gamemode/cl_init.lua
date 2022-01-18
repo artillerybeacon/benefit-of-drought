@@ -31,14 +31,3 @@ net.Receive("drought_modify_itemlist", function()
 
 	our_itemlist_cache[item] = qty
 end)
-
-hook.Remove( "CalcView", "MyCalcView", function( ply, pos, angles, fov )
-	local view = {
-		origin = pos - ( angles:Forward() * 100 ),
-		angles = angles,
-		fov = fov,
-		drawviewer = true
-	}
-
-	return view
-end )

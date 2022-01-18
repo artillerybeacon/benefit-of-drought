@@ -26,7 +26,7 @@ function Log(name)
                 local concat = ""
 
                 for i = 1, #args - 1 do
-                    concat = concat .. tostring(args[i]) .. ", "
+                    concat = concat .. tostring(args[i])
                 end
 
                 concat = concat .. tostring(args[#args])

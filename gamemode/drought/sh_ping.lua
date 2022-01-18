@@ -49,7 +49,7 @@ else
 		return color_cache[r][g][b][a]
 	end
 
-	local cc = colorcache(255, 0, 100)
+	local cc = colorcache(0, 200, 255)
 
 	DROUGHT.LastPing = SysTime()
 
@@ -59,6 +59,12 @@ else
 
 	DROUGHT.Pings = {}
 
+	local names = {
+		npc_zombie = 'Zombie',
+		npc_antlion = 'Antlion',
+		npc_headcrab = 'Headcrab'
+	}
+
 	net.Receive("drought_ping", function()
 		local pos = net.ReadVector()
 		local ply = net.ReadEntity()
@@ -66,18 +72,25 @@ else
 
 		table.insert(DROUGHT.Pings, {pos = pos, ply = ply, hit = hit, start = SysTime()})
 
-		if game.GetWorld() == hit then return end
+		-- if game.GetWorld() == hit then return end
 
 		if hit:GetClass() == "loot_crate" then
 			chat.AddText(cc, " < ", ply:Name(), " has found: Loot Crate ($" .. hit:GetCost() .. ") > ")
 		elseif hit:GetClass() == "altar_of_gold" then
 			chat.AddText(cc, " < ", ply:Name(), " has found: Altar of Gold ($" .. hit:GetCost() .. ") > ")
 		else
-			chat.AddText(cc, " < ", ply:Name(), " has found: " .. hit:GetTable().Name .. " > ")
+			local n
+			if game.GetWorld() == hit then
+				n = ' has indicated something.'
+			else
+				n = ' has found: ' .. names[hit:GetClass()]
+			end
+			chat.AddText(cc, " < ", ply:Name(), n, " > ")
 		end
 	end)
 	
 	local circles = {}
+
 
 	hook.Add("HUDPaint", "drought_ping", function()
 		for i = 1, #DROUGHT.Pings do
@@ -91,11 +104,17 @@ else
 			end
 			
 			local pos
-			if game.GetWorld() == hit then
-				pos = ping.pos:ToScreen()
+
+			if game.GetWorld() != ping.hit and not IsValid(ping.hit) then
+				continue
 			else
-				pos = (ping.hit:GetPos() + Vector(0, 0, ping.hit:OBBCenter().z)):ToScreen()
+				if game.GetWorld() == ping.hit then
+					pos = ping.pos:ToScreen()
+				else
+					pos = (ping.hit:GetPos() + Vector(0, 0, ping.hit:OBBCenter().z)):ToScreen()
+				end
 			end
+
 
 			local ent = ping.ply
 

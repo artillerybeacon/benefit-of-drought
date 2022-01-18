@@ -21,7 +21,7 @@ if SERVER then
 		L(ply:Name() .. " has left the server.")
 	end)
 
-	util.AddNetworkString("drought_readyup")
+	util.AddNetworkString("drought_readyup") 
 
 	timer.Create("drought_readyup_timer", 1, 0, function()
 		if next(DROUGHT.ReadyPlayers) == nil then return end
@@ -48,7 +48,11 @@ if SERVER then
 				v:UnSpectate()
 				v:SetTeam(1)
 				v:Give("weapon_crowbar")
+				GAMEMODE:InitGameVars(v)
+				GAMEMODE:ClearInventory(v)
 			end
+
+			DROUGHT.StartTime = SysTime()
 				
 			net.Start("drought_readyup")
 				net.WriteBool(true)
@@ -243,7 +247,7 @@ else
 		end) 
 	end)
 
-	if IsValid(DROUGHT.ReadyUpPanel) then
+	if IsValid(DROUGHT.ReadyUpPanel) or GetGlobalBool("drought_game_is_started", false) == false then
 		DROUGHT:CreateReadyUpPanel()
 	end
 

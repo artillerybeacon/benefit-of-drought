@@ -22,6 +22,17 @@ function GM:SendItemChange(ply, id, qty)
 	net.Send(ply)
 end
 
+function GM:ClearInventory(ply)
+	if not ply.Inventory then return end
+
+	for k,v in pairs(ply.Inventory) do
+		self:SendItemChange(ply, k, 0)
+	end
+
+	ply.Inventory = {}
+	self:RecalculateMovementVars(ply)
+end
+
 util.AddNetworkString("drought_send_pickup")
 function GM:BroadcastPickupItem(ply, id)
 	net.Start("drought_send_pickup")
@@ -67,10 +78,56 @@ function GM:OnPickupItem(ply, ent)
 	end
 
 	self:SendItemChange(ply, id, qty)
+	self:RecalculateMovementVars(ply)
+end
+
+local default_walk = 200
+local default_jump = 200
+function GM:RecalculateMovementVars(ply)
+
+	// Movement Speed
+	local extraSpeed = 0
+	if ply.Inventory and ply.Inventory.shoe then
+		extraSpeed = self.ItemDefs.shoe.getEffect(ply.Inventory.shoe)
+	end
+	ply:SetRunSpeed((default_walk * 2) + (extraSpeed * 2))
+	ply:SetWalkSpeed(default_walk + extraSpeed)
+
+	// Jump Power
+	local extraJump = 0
+	if ply.Inventory and ply.Inventory.horsie then
+		extraJump = self.ItemDefs.horsie.getEffect(ply.Inventory.horsie)
+	end
+	ply:SetJumpPower(default_jump + extraJump)
+
+	// Attack Speed
+	local wep = ply:GetActiveWeapon()
+	if IsValid(wep) and wep.Primary and wep.Primary.Delay then
+
+		local delay
+		if not wep.Primary.StoredDelay then
+			wep.Primary.StoredDelay = wep.Primary.Delay
+		end
+
+		delay = wep.Primary.StoredDelay
+		
+		local extraASpeed = 1
+		if ply.Inventory and ply.Inventory.oilbarrel then
+			extraASpeed = math.max(extraASpeed - self.ItemDefs.oilbarrel.getEffect(ply.Inventory.oilbarrel), 0)
+		end
+
+		delay = delay * extraASpeed
+
+		wep.Primary.Delay = math.Round(delay, 6)
+
+		wep:CallOnClient('HackySetDelay', tostring(wep.Primary.Delay))
+
+	end
+
 end
 
 concommand.Add("bod_admin_spawn_item", function(ply, argst, args)
-	if !ply:IsSuperAdmin() then return end 
+	-- if !ply:IsSuperAdmin() then return end 
 
 	local item
 	if next(args) == nil then

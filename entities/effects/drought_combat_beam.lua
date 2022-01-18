@@ -1,7 +1,15 @@
 
-local color_angry = Color(120, 60, 60)
+local beam_colors = {
+	{ -- 1: combat shrine
+		angry = Color(120, 60, 60),
+		angrier = Color(120, 0, 0)
+	},
+	{ -- 2: director spawns
+		angry = Color(60, 250, 60),
+		angrier = Color(0, 160, 0)
+	}
+}
 
-local color_angrier = Color(120, 0, 0)
 function EFFECT:Init( data )
 	self.data = data
 	self.particles = 3
@@ -25,14 +33,18 @@ function EFFECT:Render()
 
 	local vOffset = self.data:GetOrigin() + Vector( 0, 0, 0.2 )
 	local vAngle = self.data:GetAngles()
+
+	local beam_color_palette = beam_colors[self.data:GetColor()]
+	local ca, cr = beam_color_palette.angry, beam_color_palette.angrier
 	
 	local emitter = ParticleEmitter( vOffset, false )
 		for i=0, self.particles do
 			local particle = emitter:Add( "effects/softglow", vOffset )
+			
 			if particle then
 				particle:SetAngles( vAngle )
 				particle:SetVelocity( Vector( 0, 0, 15 ) )
-				particle:SetColor( color_angry:Unpack() )
+				particle:SetColor( ca:Unpack() )
 				particle:SetLifeTime( 0 )
 				particle:SetDieTime( 0.2)
 				particle:SetStartAlpha( 255 )
@@ -48,7 +60,7 @@ function EFFECT:Render()
 			if sparticle then
 				sparticle:SetAngles( vAngle )
 				sparticle:SetVelocity( Vector( 0, 0, 15 ) )
-				sparticle:SetColor( color_angrier:Unpack() )
+				sparticle:SetColor( cr:Unpack() )
 				sparticle:SetLifeTime( 0 )
 				sparticle:SetDieTime( 0.01)
 				sparticle:SetStartAlpha( 255 )
@@ -66,16 +78,16 @@ function EFFECT:Render()
 	local beamEnd = beamStart - 4
 	cam.Start3D()
 		render.SetMaterial(m)
-		for i = 1, 1 do
+		--for i = 1, 1 do
 			render.DrawBeam(
 				self.data:GetStart(),
 				self.data:GetOrigin(),
 				10,
 				beamStart,
 				beamEnd,
-				color_angry
+				ca
 			)
-		end
+		--end
 	cam.End3D()
 
 end

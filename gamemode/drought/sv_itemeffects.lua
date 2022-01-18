@@ -19,19 +19,57 @@ function GM:EntityTakeDamage(target, dmg)
 					target.LastHit = atk
 				end
 			end
+
+			if atk.Inventory.huladoll then
+				local percentage = 1 + (self.ItemDefs.huladoll.getEffect(atk.Inventory.huladoll))
+				dmg:SetDamage(dmg:GetDamage() * percentage)
+			end
+
+			if atk.Inventory.beamgut then
+				local fb = atk.Inventory.beamgut
+				local chance = math.ceil(5 + (fb - 1 == 0 and 0 or math.log(fb / 6 + 1)) * 20) / 100
+
+				print(chance)
+
+				if math.random() < chance then
+					atk:EmitSound'DeathBeam'
+					local percentage = (1 + self.ItemDefs.beamgut.getEffect(fb) / 100) * dmg:GetDamage()
+					dmg:SetDamage(percentage)
+				end
+			end
+
 		end
 	elseif target:IsPlayer() then
 		local atk = target
 		if IsValid(atk) and atk:IsPlayer() and next(atk.Inventory) != nil then
 			
+			
+			if atk.Inventory.suitcase then
+				local percentage = self.ItemDefs.suitcase.getEffect(atk.Inventory.suitcase)
+				local rebound = dmg:GetDamage() * percentage
+
+				local enm = dmg:GetAttacker()
+				enm.LastHit = atk
+				enm:TakeDamage(rebound)
+				enm:EmitSound("weapons/pistol/pistol_fire3.wav")
+			end
+
 			if atk.Inventory.antliongib then
 				local fb = atk.Inventory.antliongib
 				local reduction = math.ceil(5 + (fb - 1 == 0 and 0 or math.log(fb / 6 + 1)) * 20)
 				
 				local newdmg = dmg:GetDamage() / (1 + reduction / 100)
-
 				dmg:SetDamage(newdmg)
 			end
+
+			if atk.Inventory.debuffdoll then
+				local percentage = 1 + (self.ItemDefs.debuffdoll.getEffect(atk.Inventory.debuffdoll) / 100)
+				dmg:SetDamage(dmg:GetDamage() * percentage)
+			end
+
+			print(dmg:GetAttacker())
+
+
 		end
 	end
 end
@@ -79,6 +117,11 @@ concommand.Add("giveall", function(ply)
 		GAMEMODE:SendItemChange(ply, k, 30)
 		
 	end
+end)
+
+hook.Add("PlayerSay", 'asd', function(ply, txt)
+	ply.Inventory[txt] = 30
+	GAMEMODE:SendItemChange(ply, txt, 30)
 end)
 
 L("Item system loaded")

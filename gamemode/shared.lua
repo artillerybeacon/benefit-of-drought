@@ -70,7 +70,7 @@ GM.ItemDefs = {
 		rarity = 2,
 		desc = "Gives you extra jump height.",
 		mdl = "models/props_c17/statue_horse.mdl",
-		getEffect = function(stack) return 1 end,
+		getEffect = function(stack) return 15 * stack end,
 		obtainable = true,
 		mdlScale = 0.25
 	},
@@ -79,7 +79,9 @@ GM.ItemDefs = {
 		rarity = 1,
 		desc = "I am SPEED.",
 		mdl = "models/props_junk/Shoe001a.mdl",
-		getEffect = function() end,
+		getEffect = function(stack)
+			return 20 * stack
+		end,
 		obtainable = true,
 		mdlScale = 2,
 		spawnOffset = Vector(0, 0, 10)
@@ -210,7 +212,11 @@ GM.ItemDefs = {
 		rarity = 4,
 		desc = "Hitting targets has a chance to shoot a beam of pure energy.",
 		mdl = "models/props_lab/crematorcase.mdl",
-		getEffect = function() end,
+		getEffect = function(stack)
+			local initial = 25
+
+			return initial * stack
+		end,
 		mdlScale = 1,
 		obtainable = true
 	},
@@ -235,13 +241,46 @@ GM.ItemDefs = {
 	["oilbarrel"] = {
 		name = "Oil Barrel",
 		rarity = 2,
-		desc = "Hitting enemies slows them.",
+		desc = "Makes your hands feel slippery, but increases your attack speed by 7% per stack.",
 		mdl="models/props_c17/oildrum001.mdl",
-		getEffect = function() end,
+		getEffect = function(stack)
+			return .07 * stack
+		end,
 		mdlScale = 0.5,
 		obtainable = true
 	}
 }
+
+/*
+
+"Airboat.FireGunRevDown"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"VOL_NORM"
+	"pitch"			"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_GUNFIRE"
+
+	"rndwave"
+	{
+		"wave"			"weapons/airboat/airboat_gun_lastshot1.wav"
+		"wave"			"weapons/airboat/airboat_gun_lastshot2.wav"
+	}
+}
+
+*/
+
+sound.Add({
+	name    = 'DeathBeam',
+	channel = CHAN_STATIC,
+	volume  = 1,
+	level   = 160,
+	pitch   = {160, 180},
+	sound   = {
+		"weapons/airboat/airboat_gun_lastshot1.wav"
+	}
+})
+
 
 if SERVER then
 	for k,v in pairs(GM.ItemDefs) do

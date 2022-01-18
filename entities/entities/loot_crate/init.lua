@@ -93,7 +93,7 @@ function ENT:Use(act, call)
 end
 
 concommand.Add("spawnlootcrate", function(ply)
-	local e = ents.Create("loot_crate")
+	local e = ents.Create("altar_of_combat")
 	e:SetPos(ply:GetEyeTrace().HitPos)
 	e:Spawn()
 end)

@@ -4,6 +4,7 @@ AddCSLuaFile("cl_init.lua")
 
 util.AddNetworkString("drought_caltar_notif")
 util.AddNetworkString("drought_combat_beam")
+util.AddNetworkString("drought_director_beam")
 
 function ENT:Initialize()
 
@@ -43,9 +44,10 @@ function ENT:Use(activator)
 	local hordecount = math.random(1, 3)
 	local circle_amnts = math.random(3, 6)
 	local dist = 300
+	local delay = 0.6
 
 	for i = 1, circle_amnts do
-		timer.Simple(0.25 * i, function()
+		timer.Simple(delay * i, function()
 
 			if not IsValid(self) then return end
 
@@ -61,13 +63,15 @@ function ENT:Use(activator)
 			end
 
 			net.Start("drought_combat_beam")
-			net.WriteVector(pos)
+				net.WriteVector(pos)
 				net.WriteVector(self:GetPos() + Vector(0, 0, 25) + Vector(0, 0, self:OBBMaxs().z))
-				
+				net.WriteUInt(1, 4)
+				-- net.WriteString("drought_combat_beam")
 			net.SendPVS(activator:GetPos())
 
 		end)
-		timer.Simple(0.25 + 0.25 * i, function()
+
+		timer.Simple(delay + delay * i, function()
 			if not IsValid(self) then return end
 
 			local frac = (360 / circle_amnts) * i
