@@ -41,9 +41,13 @@ else
 	include("sh_hitmarker.lua")
 
 	-- cl
-	include("cl_itemhud.lua")
+	include("cl_itemhud.lua") 
 	include("cl_realhud.lua")
 	include("cl_thirdperson.lua")
 end
+
+function DROUGHT.GameStarted()
+	return GetGlobalBool("drought_game_is_started", false)
+end 
 
 print("Loaded all gamemode functions.")

@@ -132,9 +132,27 @@ function DROUGHT:GetEnemyAffordableCards(category)
 
 end
 
+local playercache = 0
+
 function DROUGHT:GetDifficultyCoefficient(dur)
 
-	return dur / 60
+	local plyDiffScale = (1 + 0.3 * playercache)
+	return (dur / 60) * plyDiffScale
+
+end
+
+function DROUGHT:GetValidPlayerChoices()
+
+	local plys = player.GetAll()
+	local ret = {}
+	for i = 1, #plys do
+		local v = plys[i]
+		if IsValid(v) and v:Alive() then
+			ret[#ret + 1] = v
+		end
+	end
+
+	return ret
 
 end
 
@@ -193,11 +211,11 @@ function DROUGHT:SpawnEnemy(duration)
 	end
 
 	local card = (roll(cards))
-	local horde = math.random(1, 5)
-	local plys = player.GetAll()
+	local plys = self:GetValidPlayerChoices()
 	local player_to_spawn_on = plys[math.random(1,#plys)]
 	local tier = 0 // unused
 	local count = 0
+	local horde = math.random(1, 5)
 	local last = SysTime()
 
 	timer.Create('DirectorSpawn', 0.25, horde, function()
@@ -232,10 +250,12 @@ function DROUGHT:SpawnEnemy(duration)
 end
 
 hook.Add("Think", "drought_director_think", function()
-	if not GetGlobalBool("drought_game_is_started", false) then return end
+	if not DROUGHT.GameStarted() then return end
 	
 	local duration = SysTime() - DROUGHT.StartTime
 	if SysTime() > DROUGHT.DirectorLastCredit + 1 then
+
+		playercache = #player.GetAll()
 
 		DROUGHT.DirectorLastCredit = SysTime()
 		DROUGHT.DirectorCredits = DROUGHT.DirectorCredits + math.max(1, math.Round(math.random() * DROUGHT:GetDifficultyCoefficient(duration * 3)))

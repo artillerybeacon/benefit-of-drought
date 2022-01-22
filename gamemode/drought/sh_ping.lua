@@ -10,7 +10,7 @@ if SERVER then
 		local hitpos = net.ReadVector()
 		local traceent = net.ReadEntity()
 
-		if not GetGlobalBool("drought_game_is_started", false) then return end
+		if not DROUGHT.GameStarted() then return end
 
 		net.Start("drought_ping")
 			net.WriteVector(hitpos)
@@ -83,7 +83,7 @@ else
 			if game.GetWorld() == hit then
 				n = ' has indicated something.'
 			else
-				n = ' has found: ' .. names[hit:GetClass()]
+				n = ' has found: ' .. (hit:GetClass() == "player" and hit:Name() or names[hit:GetClass()])
 			end
 			chat.AddText(cc, " < ", ply:Name(), n, " > ")
 		end
@@ -163,7 +163,7 @@ else
 	end)
  
 	hook.Add("Move", "drought_ping", function(ply, mv)
-		if input.WasMousePressed(MOUSE_MIDDLE) and GetGlobalBool("drought_game_is_started", false) then
+		if input.WasMousePressed(MOUSE_MIDDLE) and DROUGHT.GameStarted() then
 			if SysTime() > DROUGHT.LastPing + DROUGHT.PingDuration then
 				DROUGHT.LastPing = SysTime()
 

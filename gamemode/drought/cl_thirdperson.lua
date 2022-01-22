@@ -17,7 +17,7 @@ local tr = util.TraceHull( {
 	local hull = util.TraceHull({
 		start = pos,
 		endpos = e,
-		filter = ply,
+		filter = game.GetWorld(),
 		mins = Vector(-10, -10, -10),
 		maxs = Vector(10, 10, 10)
 	})

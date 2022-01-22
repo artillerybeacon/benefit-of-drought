@@ -7,7 +7,7 @@ if SERVER then
 	DROUGHT.ReadyPlayers = {}
 
 	hook.Add("PlayerInitialSpawn", "drought_setready", function(ply)
-		if GetGlobalBool("drought_game_is_started", false) then return end
+		if DROUGHT.GameStarted() then return end
 
 		DROUGHT.ReadyPlayers[ply] = false
 
@@ -42,14 +42,18 @@ if SERVER then
 			game.CleanUpMap()
 			DROUGHT.Interactable:SpawnInteractables()
 
+			DROUGHT.Alive = {}
+
 			for k,v in pairs(player.GetAll()) do
 				L("Spawned ", v)
 				v:Spawn()
 				v:UnSpectate()
 				v:SetTeam(1)
-				v:Give("weapon_crowbar")
+				GAMEMODE:PlayerLoadout(v)
 				GAMEMODE:InitGameVars(v)
 				GAMEMODE:ClearInventory(v)
+				GAMEMODE:RecalculateMovementVars(v)
+				DROUGHT.Alive[v] = true
 			end
 
 			DROUGHT.StartTime = SysTime()
@@ -225,7 +229,7 @@ else
 	end
 
 	hook.Add("InitPostEntity", "drought_readyup_show", function()
-		if GetGlobalBool("drought_game_is_started", false) then return end
+		if DROUGHT.GameStarted() then return end
 
 		DROUGHT:CreateReadyUpPanel()
 		hook.Remove("InitPostEntity", "drought_readyup_show")
@@ -247,9 +251,14 @@ else
 		end) 
 	end)
 
-	if IsValid(DROUGHT.ReadyUpPanel) or GetGlobalBool("drought_game_is_started", false) == false then
-		DROUGHT:CreateReadyUpPanel()
-	end
+	DROUGHT:CreateReadyUpPanel()
+	--chat.AddText(GetGlobalBool("drought_game_is_started", false))
+	--if GetGlobalBool("drought_game_is_started", false) then
+		-- DROUGHT:CreateReadyUpPanel()
+	--end
+	--if IsValid(DROUGHT.ReadyUpPanel) and not GetGlobalBool("drought_game_is_started", false) then
+	--	DROUGHT:CreateReadyUpPanel()
+	--end
 
 	net.Receive("drought_readyup", function()
 		local isDone = net.ReadBool()

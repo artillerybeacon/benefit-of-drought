@@ -2,8 +2,30 @@ local L = Log("drought:itemsys")
 
 SetLoggingMode("drought:itemsys", DROUGHT.Debug)
 
+function GM:DealWithOnHitProcs(ply, target, dmginfo)
+
+	// TODO move out of EntityTakeDamage
+	return
+
+end
+
+function GM:DealWithOnKillProcs(ply, target, dmginfo)
+
+	// TODO move out of OnNPCKilled
+	return
+
+end
+
 function GM:EntityTakeDamage(target, dmg)
 	-- NPC items
+	if target:GetClass() == "player" then
+		local atk = dmg:GetAttacker()
+		if atk:GetClass() == "player" then
+			dmg:SetDamage(0)
+			return
+		end
+	end
+
 	if target:GetClass():find("npc_") then
 		local atk = dmg:GetAttacker()
 
@@ -52,6 +74,8 @@ function GM:EntityTakeDamage(target, dmg)
 				enm.LastHit = atk
 				enm:TakeDamage(rebound)
 				enm:EmitSound("weapons/pistol/pistol_fire3.wav")
+				net.Start("DrawHitMarker")
+				net.Send(atk)
 			end
 
 			if atk.Inventory.antliongib then

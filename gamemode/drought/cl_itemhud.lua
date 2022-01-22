@@ -32,7 +32,7 @@ hook.Add("HUDPaint", "DroughtHudItem", function()
 	end
 
 	if not me:Alive() then return end
-	if not GetGlobalBool("drought_game_is_started", false) then return end
+	if not DROUGHT.GameStarted() then return end
 
 	surface.SetDrawColor(90, 90, 90, 150)
 

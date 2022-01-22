@@ -124,6 +124,14 @@ function GM:RecalculateMovementVars(ply)
 
 	end
 
+	self:PostSpeedModHook(
+		ply,
+		default_walk,
+		default_walk*2,
+		ply:GetWalkSpeed(),
+		ply:GetRunSpeed()
+	)
+
 end
 
 concommand.Add("bod_admin_spawn_item", function(ply, argst, args)
