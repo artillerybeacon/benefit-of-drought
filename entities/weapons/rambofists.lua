@@ -103,8 +103,8 @@ function SWEP:DealDamage()
 			start = self.Owner:GetShootPos(),
 			endpos = self.Owner:GetShootPos() + self.Owner:GetAimVector() * self.HitDistance,
 			filter = self.Owner,
-			mins = Vector( -10, -10, -8 ),
-			maxs = Vector( 10, 10, 8 ),
+			mins = Vector( -30, -30, -24 ),
+			maxs = Vector( 30, 30, 24 ),
 			mask = MASK_SHOT_HULL
 		} )
 	end
