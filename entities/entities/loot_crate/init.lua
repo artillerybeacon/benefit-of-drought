@@ -30,8 +30,26 @@ function ENT:Initialize()
 	-- go through all the items in the game
 	local applicable = {}
 	local topickrarity = 1
-	local weight = math.random(1, 100)
+	--local weight = math.random(1, 100)
 
+	local rarities = {
+		{ Shares = 60 },
+		{ Shares = 33 },
+		{ Shares = 7 },
+		{ Shares = 1  }
+	}
+
+	if isbig then
+		rarities = {
+			{ Shares = 0  },
+			{ Shares = 55 },
+			{ Shares = 35 },
+			{ Shares = 10 }
+		}
+	end
+
+	topickrarity = (DROUGHT.RollChance(rarities))
+/*
 
 	if isbig then
 		topickrarity = math.random(2, 4)
@@ -46,6 +64,7 @@ function ENT:Initialize()
 			topickrarity = 4
 		end
 	end
+*/
 
 	for k,v in pairs(GAMEMODE.ItemDefs) do
 		if v.rarity == topickrarity then
@@ -93,7 +112,9 @@ function ENT:Use(act, call)
 end
 
 concommand.Add("spawnlootcrate", function(ply)
-	local e = ents.Create("altar_of_combat")
+	do return end
+
+	local e = ents.Create("loot_crate")
 	e:SetPos(ply:GetEyeTrace().HitPos)
 	e:Spawn()
 end)
