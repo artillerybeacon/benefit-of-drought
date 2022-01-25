@@ -14,6 +14,13 @@ local Classes = {
 		health = 125,
 		default_speed = 1.1,
 		model = DefaultModel
+	},
+
+	['class_gunner'] = {
+		loadout = { 'dualberettas' },
+		health = 95,
+		default_speed = 1,
+		model = DefaultModel
 	}
 
 }
@@ -42,7 +49,7 @@ function GM:PlayerLoadout(ply)
 
 end
 
-function GM:PostSpeedModHook(ply, oldw, oldr, neww, newr)
+hook.Add('PostSpeedModHook', 'class', function(ply, oldw, oldr, neww, newr)
 
 	local class_str = ply:GetNWString('drought_class_str', 'class_rambo')
 	local class_tbl = Classes[class_str]
@@ -56,7 +63,6 @@ function GM:PostSpeedModHook(ply, oldw, oldr, neww, newr)
 		newr = newr * class_tbl.default_speed
 	end
 
-	ply:SetWalkSpeed(neww)
-	ply:SetRunSpeed(newr)
+	return neww, newr 
 
-end
+end)

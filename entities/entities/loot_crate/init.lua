@@ -30,8 +30,7 @@ function ENT:Initialize()
 	-- go through all the items in the game
 	local applicable = {}
 	local topickrarity = 1
-	--local weight = math.random(1, 100)
-
+	
 	local rarities = {
 		{ Shares = 60 },
 		{ Shares = 33 },
@@ -49,22 +48,6 @@ function ENT:Initialize()
 	end
 
 	topickrarity = (DROUGHT.RollChance(rarities))
-/*
-
-	if isbig then
-		topickrarity = math.random(2, 4)
-	else
-		if weight < 75 then
-			topickrarity = 1
-		elseif weight >= 75 or weight < 88 then
-			topickrarity = 2
-		elseif weight >= 88 and weight < 98 then
-			topickrarity = 3
-		elseif weight >= 98 then
-			topickrarity = 4
-		end
-	end
-*/
 
 	for k,v in pairs(GAMEMODE.ItemDefs) do
 		if v.rarity == topickrarity then
@@ -78,10 +61,8 @@ function ENT:Initialize()
 		self:SetItemToGive(applicable[math.random(1, #applicable)])
 	end
 
-	--PrintMessage(3, tostring(self) .. " has weight " .. tostring(weight) .. " with rarity " .. tostring(topickrarity) .. " and item " .. self:GetItemToGive())
-
 end
--- 
+
 function ENT:Use(act, call)
 	if not self.Used and act:Team() == 1 then
 		self.Used = true

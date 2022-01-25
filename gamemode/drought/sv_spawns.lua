@@ -15,9 +15,6 @@ local Weights = {
 
 }
 
-local TotalWeights = {}
-
-
 local SpawnCards = {
 
 	["npc_headcrab"] = {
@@ -45,6 +42,8 @@ local SpawnCards = {
 	}
 
 }
+
+local TotalWeights = {}
 
 local MaxHorde = 5
 
@@ -110,9 +109,11 @@ local function roll(crate)
 	end
 end
 
+DROUGHT.RollChance = roll
+
 local spawn_chance = 2.5
 local spawn_duration_min = 8
-local spawn_duration_max = 12
+local spawn_duration_max = 25
 local next_spawn = math.Remap(0.5, 0, 1, spawn_duration_min, spawn_duration_max)
 
 function DROUGHT:GetEnemyAffordableCards(category)
@@ -122,7 +123,14 @@ function DROUGHT:GetEnemyAffordableCards(category)
 	local affordable = {}
 	for k,v in pairs(SpawnCards) do
 
-		if self.DirectorCredits >= v.cost and v.t == category then
+		local too_cheap = false
+
+		// TODO: too cheap
+		if false then
+			too_cheap = true
+		end
+
+		if self.DirectorCredits >= v.cost and v.t == category and not too_cheap then
 			affordable[k] = v
 		end
 
@@ -133,11 +141,64 @@ function DROUGHT:GetEnemyAffordableCards(category)
 end
 
 local playercache = 0
+local minute = 60
+
+local diffs = {
+
+	Easy = {
+		end_at = 0,
+		mult = 0
+	},
+	Medium = {
+		end_at = minute * 5,
+		mult = 0.2
+	},
+	Impossible = {
+		end_at = 1e9,
+		mult = 3
+	}
+
+}
+
+local hordeCount = {
+	{ Shares = 100 },
+	{ Shares = 50 },
+	{ Shares = 30 },
+	{ Shares = 15 },
+	{ Shares = 5  }
+}
+
+DROUGHT.CurrentDifficulty = nil
 
 function DROUGHT:GetDifficultyCoefficient(dur)
 
-	local plyDiffScale = (1 + 0.3 * playercache)
-	return (dur / 60) * plyDiffScale
+	local baseScale = (dur / (minute * 2.5))
+
+	local plyDiffScale = (1 + 0.3 * (playercache - 1)) // 30% per player
+	
+	local timeDiffScale = 1
+	local lastDiff 
+	for k,v in pairs(diffs) do
+		if dur >= v.end_at then
+			timeDiffScale = 1 + v.mult
+			lastDiff = k
+			continue
+		else
+			if not DROUGHT.CurrentDifficulty then
+				DROUGHT.CurrentDifficulty = lastDiff
+			else
+				if DROUGHT.CurrentDifficulty != lastDiff then
+					PrintMessage(3, 'New Difficulty: ' .. lastDiff)
+					DROUGHT.CurrentDifficulty = lastDiff
+				end
+			end
+			break
+		end 
+	end
+
+	return baseScale
+		   * plyDiffScale
+		   * timeDiffScale
 
 end
 
@@ -170,6 +231,9 @@ function DROUGHT:GetRandomSpawnPos(ply)
 		if not IsValid(area) then
 			return Vector(0, 0, 0)
 		end
+
+		// TODO: Get random area within the nav area.
+		// print(area:GetRandomPoint())
 		vrand = area:GetCenter()
 	end
 
@@ -202,7 +266,7 @@ function DROUGHT:SpawnEnemy(duration)
 	*/
 	local category = (roll(TotalWeights))
 	local cards = self:GetEnemyAffordableCards(category)
-
+	
 	if next(cards) == nil then
 
 		L'cant afford shit'
@@ -213,30 +277,55 @@ function DROUGHT:SpawnEnemy(duration)
 	local card = (roll(cards))
 	local plys = self:GetValidPlayerChoices()
 	local player_to_spawn_on = plys[math.random(1,#plys)]
-	local tier = 0 // unused
+	// local tier = 0 // unused
 	local count = 0
 	local horde = math.random(1, 5)
 	local last = SysTime()
 
+
+	// Elite Picker:
+	// The Director then determines which Elite tier will be active.
+	// The chosen Elite tier is the highest available tier the Director can afford
+	// (as in, the value of the corresponding Elite monster is less than or equal to the Director's current credits).
+	// Once the tier has been chosen, a random affix is then picked from its tier (unless the chosen tier is 0).
+	// All Elites from the wave will use this tier and affix.
+	local eliteAffix, eliteTier, spawnCost = DROUGHT:ChoseEliteAffix(card, SpawnCards)
+
+	local function cancelSpawn(reason)
+		timer.Remove('DirectorSpawn')
+		L('Unable to spawn more ', card, ' because of ', reason , '. (', count,' / ', horde,') Cancelling spawn.')
+	end
+
 	timer.Create('DirectorSpawn', 0.25, horde, function()
 
-		local canAfford = self.DirectorCredits >= SpawnCards[card].cost
+		local canAfford = self.DirectorCredits >= spawnCost
+		print(self.DirectorCredits, spawnCost)
 		if not canAfford then
+			return cancelSpawn('budget cuts')
+		end
 
-			timer.Remove('DirectorSpawn')
-			L('Unable to spawn more ', card, '. (', count,' / ', horde,') Cancelling spawn.')
-			return
-
+		local aliveEnemies = ents.FindByClass('npc_*')
+		if #aliveEnemies >= 40 then
+			--PrintTable(aliveEnemies)
+			--for k,v in pairs(aliveEnemies) do
+			--	print(v:GetPos(), util.IsInWorld(v))
+			--end
+			return cancelSpawn('too many enemies')
 		end
 
 		count = count + 1
 		L('Spawning ', card, '. (', count,' / ', horde,')')
+		L("Elites: ", eliteAffix, ", ", eliteTier)
 
 		local pos = self:GetRandomSpawnPos(player_to_spawn_on)
 		local e = ents.Create(card)
 		e:SetPos(pos)
 		e:Spawn()
 		e:SetNWInt('reward', SpawnCards[card].reward)
+		e:SetNWString('affix', eliteAffix)
+		e:SetKeyValue('spawnflags', SF_NPC_FADE_CORPSE)
+
+		self:HandleEliteAffix(e, eliteAffix, eliteTier)
 
 		net.Start("drought_combat_beam")
 			net.WriteVector(pos + Vector(0, 0, 100) + VectorRand() * 20)
@@ -244,7 +333,7 @@ function DROUGHT:SpawnEnemy(duration)
 			net.WriteUInt(2, 4)
 		net.SendPVS(pos)
 
-		self.DirectorCredits = self.DirectorCredits - SpawnCards[card].cost
+		self.DirectorCredits = self.DirectorCredits - spawnCost
 
 	end)
 end
@@ -258,9 +347,9 @@ hook.Add("Think", "drought_director_think", function()
 		playercache = #player.GetAll()
 
 		DROUGHT.DirectorLastCredit = SysTime()
-		DROUGHT.DirectorCredits = DROUGHT.DirectorCredits + math.max(1, math.Round(math.random() * DROUGHT:GetDifficultyCoefficient(duration * 3)))
+		DROUGHT.DirectorCredits = DROUGHT.DirectorCredits + math.max(1, math.Round(math.random() * DROUGHT:GetDifficultyCoefficient(duration)))
 		spawn_chance = math.max(1.1, 2.5 - DROUGHT:GetDifficultyCoefficient(duration) / (10/3)) // every 3 1/3 minutes increased chance for enemies to spawn
-	
+		
 	end
 
 	if SysTime() > DROUGHT.DirectorLastSpawn + next_spawn then

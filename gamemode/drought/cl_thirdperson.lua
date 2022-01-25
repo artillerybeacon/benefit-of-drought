@@ -1,40 +1,21 @@
 
 hook.Add( "CalcView", "drought_thirdperson", function( ply, pos, angles, fov )
 	if not ply:Alive() then return end
-	
-	/*
-local tr = util.TraceHull( {
-	start = self.Owner:GetShootPos(),
-	endpos = self.Owner:GetShootPos() + ( self.Owner:GetAimVector() * 100 ),
-	filter = self.Owner,
-	mins = Vector( -10, -10, -10 ),
-	maxs = Vector( 10, 10, 10 ),
-	mask = MASK_SHOT_HULL
-} )
-*/
-	local e = pos - (angles:Forward() * 100)
+	if not DROUGHT.GameStarted() then return end
 
+	local e = pos - (angles:Forward() * 100)
 	local hull = util.TraceHull({
 		start = pos,
 		endpos = e,
 		filter = game.GetWorld(),
 		mins = Vector(-10, -10, -10),
 		maxs = Vector(10, 10, 10)
-	})
+	}).HitPos
 
-	e = hull.HitPos
-
-
-
-	local f = fov
-	local d = true
-
-	local view = {
-		origin = e,
+	return {
+		origin = hull,
 		angles = angles,
-		fov = f,
-		drawviewer = d
+		fov = fov,
+		drawviewer = true
 	}
-
-	return view
 end )

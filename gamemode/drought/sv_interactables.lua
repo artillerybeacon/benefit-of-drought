@@ -40,7 +40,17 @@ function DROUGHT.Interactable:GetSpawnArray()
 
 	result["loot_crate"] = math.random(22, 30)
 
-	result["altar_of_combat"] = math.random(2,6)
+	result["altar_of_combat"] = math.random(1,4)
+	
+	local c = nil
+	while true do
+		if math.random() < 1 / 15 then
+			c = (c or 0) + 1
+		else
+			break
+		end
+	end
+	result["altar_of_time"] = c
 
 	if math.random(1, 50) == 1 then
 		result["altar_of_gold"] = 1
@@ -92,7 +102,7 @@ function DROUGHT.Interactable:SpawnInteractables()
 		end
 
 		local crate = ents.Create(ent)
-		crate:SetPos(area:GetCenter())
+		crate:SetPos(area:GetRandomPoint())
 		crate:Spawn()
 
 		used[area:GetID()] = true

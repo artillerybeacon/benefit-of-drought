@@ -59,10 +59,24 @@ else
 
 	DROUGHT.Pings = {}
 
+	local function DefaultDisplayName(name, cost)
+		return {
+			DispName = name,
+			DispCost = cost
+		}
+	end
+
 	local names = {
-		npc_zombie = 'Zombie',
-		npc_antlion = 'Antlion',
-		npc_headcrab = 'Headcrab'
+		npc_zombie = DefaultDisplayName('Zombie', false),
+		npc_antlion = DefaultDisplayName('Antlion', false),
+		npc_headcrab = DefaultDisplayName('Headcrab', false),
+
+		altar_of_combat = DefaultDisplayName('Altar of Combat', false),
+		altar_of_gold = DefaultDisplayName('Altar of Gold', true),
+		// altar_wishwell = DefaultDisplayName('Altar of Time', false),
+		altar_of_time = DefaultDisplayName('Altar of Time', false),
+		
+		loot_crate = DefaultDisplayName('Loot Crate', true),
 	}
 
 	net.Receive("drought_ping", function()
@@ -74,7 +88,26 @@ else
 
 		-- if game.GetWorld() == hit then return end
 
-		if hit:GetClass() == "loot_crate" then
+		local chatStr = ''
+		if game.GetWorld() == hit then
+			chatStr = ' has indicated something.'
+		else
+			local nameDef = names[hit:GetClass()] or {
+				DispName = "???",
+				DispCost = false
+			}
+
+			chatStr = ' has found: ' .. (hit:GetClass() == "player" and hit:Name() or nameDef.DispName) 
+			chatStr = chatStr .. (nameDef.DispCost and (string.format(' ($%s)', string.Comma(hit:GetCost()))) or '')
+			
+		end
+		
+		if ply == LocalPlayer() then
+			surface.PlaySound('buttons/button14.wav')
+		end
+		chat.AddText(cc, "< ", ply:Name(), chatStr, " >")
+
+		/*if hit:GetClass() == "loot_crate" then
 			chat.AddText(cc, " < ", ply:Name(), " has found: Loot Crate ($" .. hit:GetCost() .. ") > ")
 		elseif hit:GetClass() == "altar_of_gold" then
 			chat.AddText(cc, " < ", ply:Name(), " has found: Altar of Gold ($" .. hit:GetCost() .. ") > ")
@@ -86,7 +119,7 @@ else
 				n = ' has found: ' .. (hit:GetClass() == "player" and hit:Name() or names[hit:GetClass()])
 			end
 			chat.AddText(cc, " < ", ply:Name(), n, " > ")
-		end
+		end*/
 	end)
 	
 	local circles = {}

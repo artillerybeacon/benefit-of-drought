@@ -2,16 +2,18 @@ local L = Log("drought:itemsys")
 
 SetLoggingMode("drought:itemsys", DROUGHT.Debug)
 
-function GM:DealWithOnHitProcs(ply, target, dmginfo)
+--function GM:DealWithOnHitProcs(ply, target, dmginfo)
 
 	// TODO move out of EntityTakeDamage
-	return
+--	print('lol',ply,target,dmginfo)
+--	return
 
-end
+--end
 
 function GM:DealWithOnKillProcs(ply, target, dmginfo)
 
 	// TODO move out of OnNPCKilled
+	print('lol2',ply,target,dmginfo)
 	return
 
 end
@@ -25,6 +27,16 @@ function GM:EntityTakeDamage(target, dmg)
 			return
 		end
 	end
+
+	
+	--elseif target:GetClass():find('npc_') then
+	hook.Run('DealWithOnHitProcs', dmg:GetAttacker(), target, dmg)
+		-- self:DealWithOnHitProcs(dmg:GetAttacker(), target, dmg)
+	--end
+
+	print('shitass')
+
+	do return end
 
 	if target:GetClass():find("npc_") then
 		local atk = dmg:GetAttacker()
@@ -99,14 +111,17 @@ function GM:EntityTakeDamage(target, dmg)
 end
 
 function GM:OnNPCKilled(npc, atk, inf)
-	-- give amount to players and give 1/4 of the amount to everyone else
 
+	-- give amount to players and give 1/4 of the amount to everyone else
 	if npc.LastHit and IsValid(npc.LastHit) then
 		atk = npc.LastHit
+		if not atk:IsPlayer() then return end
 	end
 
 	local toGive = npc:GetNWInt("reward", 3)
 	local toGiveEveryoneElse = math.ceil(toGive / 4)
+
+	toGive, toGiveEveryoneElse = hook.Run('CalculateExtraMoney', atk, toGive, toGiveEveryoneElse)
 
 	atk:SetNWInt("drought_money", atk:GetNWInt("drought_money", 0) + toGive)
 

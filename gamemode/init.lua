@@ -5,6 +5,12 @@ AddCSLuaFile("cl_init.lua")
 
 SetGlobalBool("drought_game_is_started", false)
 
+resource.AddFile('resource/fonts/bombard_.ttf')
+resource.AddFile('materials/ror2hud/armorbar.png')
+resource.AddFile('materials/ror2hud/barback.png')
+resource.AddFile('materials/ror2hud/hpbar.png')
+resource.AddFile('materials/ror2hud/lowhp_indicator.png')
+
 function GM:InitGameVars(ply)
 
 	ply:SetNWInt("drought_money", 0)
@@ -35,7 +41,17 @@ function GM:PlayerSpawn(pl)
 	pl:SetTeam(400)
 	pl:SetupHands() -- Create the hands and call GM:PlayerSetHandsModel
 	
+	--if (DROUGHT.GameStarted() and not pl.Revived) then
+	--	GAMEMODE:PlayerSpawnAsSpectator(pl)
+	--end
+
 end
+
+
+function GM:PostPlayerDeath(vic, inf, atk)
+	PrintMessage(3, "!!! " .. vic:Name() .. " died a horrible death. !!!")
+end
+
 
 -- Choose the model for hands according to their player model.
 function GM:PlayerSetHandsModel( ply, ent )
@@ -83,6 +99,7 @@ function GM:PlayerDeathThink(ply)
 		if h and h > 0 then
 
 			PrintMessage(3, ply:Name() .. " was saved by their Manzy's Best Friend.")
+			ply.Revived = true
 			ply:Spawn()
 			ply:SetTeam(1)
 			ply.DeadTime = nil
@@ -100,6 +117,7 @@ function GM:PlayerDeathThink(ply)
 			timer.Simple(0, function()
 				ply:SetPos(ply.OldPos)
 				ply:SetEyeAngles(ply.OldAngles)
+				ply.Revived = nil
 			end)
 	
 		else

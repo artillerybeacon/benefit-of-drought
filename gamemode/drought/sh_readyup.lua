@@ -158,7 +158,7 @@ else
 
 		property.panel2 = vgui.Create("DPanel", panel.ReadyUpPropertySheet)
 		property.panel2.Paint = function(self, w, h)
-			draw.RoundedBox(4, 0, 0, w, h, Color(255, 128, 0, self:GetAlpha()))
+			draw.RoundedBox(4, 0, 0, w, h, Color(122, 61, 0, self:GetAlpha()))
 		end 
 
 		panel.ReadyUpPropertySheet:AddSheet("Classes", property.panel2, "icon16/tick.png")
@@ -171,6 +171,7 @@ else
 		and IsValid(DROUGHT.ReadyUpPanel.ReadyUpPropertySheet)
 		and IsValid(DROUGHT.ReadyUpPanel.ReadyUpPropertySheet.panel1) then
 			
+			// TODO: Don't recreate panel every time the timer runs.
 			local panel = DROUGHT.ReadyUpPanel.ReadyUpPropertySheet.panel1
 			local scroll = panel.scroll
 
@@ -228,7 +229,8 @@ else
 		end
 	end
 
-	hook.Add("InitPostEntity", "drought_readyup_show", function()
+	local function ShowReadyUp()
+	
 		if DROUGHT.GameStarted() then return end
 
 		DROUGHT:CreateReadyUpPanel()
@@ -248,17 +250,12 @@ else
 		}
 		hook.Add("RenderScreenspaceEffects", "drought_start_effect", function()
 			DrawColorModify(tab)
-		end) 
-	end)
+		end)
+		
+	end
 
-	DROUGHT:CreateReadyUpPanel()
-	--chat.AddText(GetGlobalBool("drought_game_is_started", false))
-	--if GetGlobalBool("drought_game_is_started", false) then
-		-- DROUGHT:CreateReadyUpPanel()
-	--end
-	--if IsValid(DROUGHT.ReadyUpPanel) and not GetGlobalBool("drought_game_is_started", false) then
-	--	DROUGHT:CreateReadyUpPanel()
-	--end
+	concommand.Add("bod_show_readyup_screen", ShowReadyUp)
+	hook.Add("InitPostEntity", "drought_readyup_show", ShowReadyUp)
 
 	net.Receive("drought_readyup", function()
 		local isDone = net.ReadBool()
