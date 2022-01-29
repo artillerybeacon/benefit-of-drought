@@ -12,7 +12,7 @@ local item = {
 }
 
 hook.Add('CalculateMovementVars', 'shoe', function(ply, newSpeed, newJump)
-
+	
 	if ply.Inventory and ply.Inventory['shoe'] then
 		newSpeed = newSpeed + item.getEffect(ply.Inventory['shoe'])
 	end
