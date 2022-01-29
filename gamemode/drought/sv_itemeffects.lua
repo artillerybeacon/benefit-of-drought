@@ -2,24 +2,8 @@ local L = Log("drought:itemsys")
 
 SetLoggingMode("drought:itemsys", DROUGHT.Debug)
 
---function GM:DealWithOnHitProcs(ply, target, dmginfo)
-
-	// TODO move out of EntityTakeDamage
---	print('lol',ply,target,dmginfo)
---	return
-
---end
-
-function GM:DealWithOnKillProcs(ply, target, dmginfo)
-
-	// TODO move out of OnNPCKilled
-	print('lol2',ply,target,dmginfo)
-	return
-
-end
-
 function GM:EntityTakeDamage(target, dmg)
-	-- NPC items
+	-- Negate player vs player damage
 	if target:GetClass() == "player" then
 		local atk = dmg:GetAttacker()
 		if atk:GetClass() == "player" then
@@ -28,13 +12,8 @@ function GM:EntityTakeDamage(target, dmg)
 		end
 	end
 
-	
-	--elseif target:GetClass():find('npc_') then
+	-- Custom hook to run proc logic
 	hook.Run('DealWithOnHitProcs', dmg:GetAttacker(), target, dmg)
-		-- self:DealWithOnHitProcs(dmg:GetAttacker(), target, dmg)
-	--end
-
-	print('shitass')
 
 	do return end
 
@@ -42,17 +21,6 @@ function GM:EntityTakeDamage(target, dmg)
 		local atk = dmg:GetAttacker()
 
 		if IsValid(atk) and atk:IsPlayer() and next(atk.Inventory) != nil then
-
-			if atk.Inventory.firebucket then
-				local fb = atk.Inventory.firebucket
-				local chance = math.ceil(15 + (fb - 1 == 0 and 0 or math.log(fb / 6 + 1)) * 15)
-				print(chance)
-
-				if math.random(1, 100) <= chance then
-					target:Ignite(5)
-					target.LastHit = atk
-				end
-			end
 
 			if atk.Inventory.huladoll then
 				local percentage = 1 + (self.ItemDefs.huladoll.getEffect(atk.Inventory.huladoll))
@@ -76,28 +44,6 @@ function GM:EntityTakeDamage(target, dmg)
 	elseif target:IsPlayer() then
 		local atk = target
 		if IsValid(atk) and atk:IsPlayer() and next(atk.Inventory) != nil then
-			
-			
-			if atk.Inventory.suitcase then
-				local percentage = self.ItemDefs.suitcase.getEffect(atk.Inventory.suitcase)
-				local rebound = dmg:GetDamage() * percentage
-
-				local enm = dmg:GetAttacker()
-				enm.LastHit = atk
-				enm:TakeDamage(rebound)
-				enm:EmitSound("weapons/pistol/pistol_fire3.wav")
-				net.Start("DrawHitMarker")
-				net.Send(atk)
-			end
-
-			if atk.Inventory.antliongib then
-				local fb = atk.Inventory.antliongib
-				local reduction = math.ceil(5 + (fb - 1 == 0 and 0 or math.log(fb / 6 + 1)) * 20)
-				
-				local newdmg = dmg:GetDamage() / (1 + reduction / 100)
-				dmg:SetDamage(newdmg)
-			end
-
 			if atk.Inventory.debuffdoll then
 				local percentage = 1 + (self.ItemDefs.debuffdoll.getEffect(atk.Inventory.debuffdoll) / 100)
 				dmg:SetDamage(dmg:GetDamage() * percentage)
@@ -159,8 +105,12 @@ concommand.Add("giveall", function(ply)
 end)
 
 hook.Add("PlayerSay", 'asd', function(ply, txt)
-	ply.Inventory[txt] = 30
-	GAMEMODE:SendItemChange(ply, txt, 30)
+	if txt:sub(1, 5) == "!give" then
+		txt = txt:sub(7)
+		ply.Inventory[txt] = (ply.Inventory[txt] or 0) + 30
+		GAMEMODE:SendItemChange(ply, txt, ply.Inventory[txt])
+		ply:RecalculateVars()
+	end
 end)
 
 L("Item system loaded")

@@ -18,7 +18,7 @@ local Weights = {
 local SpawnCards = {
 
 	["npc_headcrab"] = {
-		cost = 5,
+		cost = 8,
 		reward = 2,
 		t = 'Basic'
 	},
@@ -39,9 +39,40 @@ local SpawnCards = {
 		cost = 500,
 		reward = 50,
 		t = 'Boss'
+	},
+
+	['npc_cscanner'] = {
+		cost = 8,
+		reward = 2,
+		t = 'Basic',
+		spawn = function(ent)
+			ent:Activate()
+			ent:Fire('AddOutput', 'OnPhotographPlayer drought_lua:RunPassedCode:hook.Run(\'WispAcquireTarget\'):0:-1')
+		end
 	}
 
 }
+
+do
+	local function SetupWisp()
+		local lua = ents.Create('lua_run')
+		lua:SetName('drought_lua')
+		lua:Spawn()
+		L('Wisp->city scanner override active... ', lua)
+	end
+
+	hook.Add("WispAcquireTarget", 'wisp', function()
+		L('Wisp attacked someone: ', ACTIVATOR, CALLER)
+
+		// Eventually I'll add a bullet shot thing in here, make them actual shotguns.
+		// I also need to move this into it's own LUA file.
+		ACTIVATOR:TakeDamage(1e9, CALLER)
+	end)
+
+	hook.Add('InitPostEntity', 'wisp', SetupWisp)
+	hook.Add('PostCleanupMap', 'wisp', SetupWisp)
+end
+
 
 local TotalWeights = {}
 
@@ -112,7 +143,7 @@ end
 DROUGHT.RollChance = roll
 
 local spawn_chance = 2.5
-local spawn_duration_min = 8
+local spawn_duration_min = 5
 local spawn_duration_max = 25
 local next_spawn = math.Remap(0.5, 0, 1, spawn_duration_min, spawn_duration_max)
 
@@ -176,6 +207,7 @@ function DROUGHT:GetDifficultyCoefficient(dur)
 
 	local plyDiffScale = (1 + 0.3 * (playercache - 1)) // 30% per player
 	
+	// THIS DOESN'T WORK AT ALL. I DON'T KNOW WHY.
 	local timeDiffScale = 1
 	local lastDiff 
 	for k,v in pairs(diffs) do
@@ -249,7 +281,18 @@ function DROUGHT:GetRandomSpawnPos(ply)
 
 end
 
-function DROUGHT:SpawnEnemy(duration)
+function DROUGHT:InWorldPeriodicCheck()
+
+	for k,v in pairs(ents.FindByClass('npc_*')) do
+		if not util.IsInWorld(v:GetPos()) then
+			local a = navmesh.GetNearestNavArea(VectorRand() * 6000, false, 6000, false)
+			v:SetPos(a:GetRandomPoint())
+		end
+	end
+
+end
+
+function DROUGHT:SpawnEnemy()
 
 	/*
 
@@ -269,7 +312,7 @@ function DROUGHT:SpawnEnemy(duration)
 	
 	if next(cards) == nil then
 
-		L'cant afford shit'
+		L'Aborting enemy spawn due to lack of credits.'
 		return false
 
 	end
@@ -299,7 +342,6 @@ function DROUGHT:SpawnEnemy(duration)
 	timer.Create('DirectorSpawn', 0.25, horde, function()
 
 		local canAfford = self.DirectorCredits >= spawnCost
-		print(self.DirectorCredits, spawnCost)
 		if not canAfford then
 			return cancelSpawn('budget cuts')
 		end
@@ -310,6 +352,7 @@ function DROUGHT:SpawnEnemy(duration)
 			--for k,v in pairs(aliveEnemies) do
 			--	print(v:GetPos(), util.IsInWorld(v))
 			--end
+			DROUGHT:InWorldPeriodicCheck()
 			return cancelSpawn('too many enemies')
 		end
 
@@ -323,7 +366,10 @@ function DROUGHT:SpawnEnemy(duration)
 		e:Spawn()
 		e:SetNWInt('reward', SpawnCards[card].reward)
 		e:SetNWString('affix', eliteAffix)
-		e:SetKeyValue('spawnflags', SF_NPC_FADE_CORPSE)
+
+		if SpawnCards[card].spawn then
+			SpawnCards[card].spawn(e)
+		end
 
 		self:HandleEliteAffix(e, eliteAffix, eliteTier)
 
