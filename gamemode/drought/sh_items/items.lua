@@ -5,12 +5,13 @@ if SERVER then
 		if not item then return end
 
 		local ent = ents.Create("item_pickup")
-		ent:SetPos(pos)
 		ent:SetItemID(id)
+		ent:SetPos(pos)
+		ent:UpdateOurItem()
 		ent:Spawn()
 
 		if item.rarity == 5 then
-			PrintMessage(3, "A debuff item has spawned on the map. Someone has to pick it up in 60 seconds or something very bad will happen to your team, I promise.")
+			PrintMessageColor(nil, Color(255, 0, 0), 'A debuff item has spawned on the map. Someone has to pick it up in 60 seconds or something very bad will happen to your team, I promise.')
 			DROUGHT.Detrimental = SysTime()
 		end
 

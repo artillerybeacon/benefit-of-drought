@@ -31,8 +31,36 @@ GM.ItemRarities = {
 	{
 		name = "Detrimental",
 		color = Color(255, 50, 0)
+	},
+	[1000] = {
+		name = 'Unique',
+		color = Color(110, 0, 200)
 	}
 }
+
+if SERVER then
+	util.AddNetworkString('PrintMessageColor')
+
+	local PlayerMeta = FindMetaTable('Player')
+
+	function PrintMessageColor(to, ...)
+		if to == nil then
+			to = player.GetHumans()
+		end
+		local args = { ... }
+		net.Start('PrintMessageColor')
+			net.WriteTable(args)
+		net.Send(to)
+	end
+
+	function PlayerMeta:PrintMessageColor(...)
+		PrintMessageColor({self}, ...)
+	end
+else
+	net.Receive('PrintMessageColor', function(len)
+		chat.AddText(unpack(net.ReadTable()))
+	end)
+end
 
 --[[
 Entity [176][prop_physics]      176     models/maxofs2d/companion_doll.mdl      1       -0.251 127.751 -0.410
@@ -52,6 +80,18 @@ Entity [205][prop_physics]      205     models/props_junk/plasticbucket001a.mdl 
 -- Entity [206][prop_physics]      206     models/props_c17/doll01.mdl     		2       0.000 -106.669 0.000
 Entity [207][prop_physics]      207     models/props_lab/cactus.mdl     		2       -0.000 176.490 0.000
 -- Entity [208][prop_physics]      208     models/props_junk/meathook001a.mdl      1       -1.208 16.973 -6.681	
+
+
+
+? models/props_wasteland/cranemagnet01a.mdl
+
+Shadow Ornament -- models/props_trainstation/trainstation_ornament002.mdl
+Mysterious Washer -- models/props_wasteland/laundry_dryer002.mdl
+Time ??? -- models/props_combine/breenclock.mdl
+
+-- models/props_junk/garbage_coffeemug001a.mdl
+
+Plug (L)-- models/props_lab/tpplug.mdl
 ]]
 GM.ItemDefs = {}
 

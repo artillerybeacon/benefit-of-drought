@@ -31,49 +31,26 @@ function GM:RecalculateAttackSpeed(ply)
 
 end
 
+// Movement Speed
 function GM:RecalculateMovementVars(ply)
-
-	// Movement Speed
-	local extraSpeed, extraJump = hook.Run(
-		'CalculateMovementVars',
-		ply,
-		0,
-		0
-	)
+	local extraSpeed, extraJump = hook.Run( 'CalculateMovementVars', ply, 0, 0 )
 
 	ply:SetRunSpeed((default_walk * 2) + (extraSpeed * 2))
 	ply:SetWalkSpeed(default_walk + extraSpeed)
 	ply:SetJumpPower(default_jump + extraJump)
-
-	// Attack Speed TODO:Move
-
-	local neww, newr = hook.Run(
-		'PostSpeedModHook',
-		ply,
-		default_walk,
-		default_walk * 2,
-		ply:GetWalkSpeed(),
-		ply:GetRunSpeed()
-	)
-
-	-- print(default_walk, neww, newr)
-
-	if neww then ply:SetWalkSpeed(neww) end
-	if newr then ply:SetRunSpeed(newr) end
-
 end
 
 local Player = FindMetaTable('Player')
 function Player:RecalculateVars()
 	
-	-- PrintMessage(3, 'Recalculating... ' .. tostring(self))
+	PrintMessage(3, 'Recalculating... ' .. tostring(self))
 	GAMEMODE:RecalculateAttackSpeed(self)
 	GAMEMODE:RecalculateMovementVars(self)
 
 end
 
+
 function GM:PlayerSwitchWeapon(ply, old, new)
-
 	ply:RecalculateVars()
-
+	return false
 end
