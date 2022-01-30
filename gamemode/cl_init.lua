@@ -19,6 +19,10 @@ net.Receive("drought_send_pickup", function()
 		GAMEMODE.ItemRarities[item.rarity].color,
 		item.name
 	)
+
+	if ent == LocalPlayer() then
+		chat.AddText(Color(148, 148, 148), "      ", item.desc)
+	end
 end)
 
 net.Receive("drought_modify_itemlist", function()
