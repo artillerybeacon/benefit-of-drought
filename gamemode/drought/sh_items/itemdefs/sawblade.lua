@@ -10,33 +10,29 @@ local item = {
 	obtainable = true
 }
 
-
-
-DROUGHT.Bleeds = {}
+local bleeds = {}
 
 local bleed_tick = 1/2
 
 hook.Add('DealWithOnHitProcs', 'bleed', function(atk, targ, dmg)
 
-print('proc:',atk, targ, dmg)
-
 	if atk.Inventory and atk.Inventory.sawblade then
 		local chance = item.getEffect(atk.Inventory.sawblade or 0)
 
 		if math.random() <= chance then
-			if not DROUGHT.Bleeds[targ] then
-				DROUGHT.Bleeds[targ] = {
+			if not bleeds[targ] then
+				bleeds[targ] = {
 					stack = 1,
 					last_tick = 0,
 					bleeder = atk,
 					time = SysTime() + 5
 				}
 			else
-				local new = DROUGHT.Bleeds[targ]
+				local new = bleeds[targ]
 				new.stack = new.stack + 1
 				new.bleeder = atk
 				new.time = SysTime() + 5
-				DROUGHT.Bleeds[targ] = new
+				bleeds[targ] = new
 			end
 			PrintMessage(3, 'Bled: ', tostring(targ))
 			targ:SetNWBool('bleeding', true)
@@ -47,19 +43,19 @@ end)
 
 hook.Add('Think', 'bleed_think', function()
 
-	for k,v in pairs(DROUGHT.Bleeds) do
+	for k,v in pairs(bleeds) do
 		if not IsValid(k) or k:Health() < 1 then
 			continue
 		end
 
 		if SysTime() > v.last_tick + bleed_tick then
-			DROUGHT.Bleeds[k].last_tick = SysTime()
-			k:TakeDamage(3 * (DROUGHT.Bleeds[k].stack or 1))
+			bleeds[k].last_tick = SysTime()
+			k:TakeDamage(3 * (bleeds[k].stack or 1))
 			continue
 		end
 
 		if SysTime() > v.time then
-			DROUGHT.Bleeds[k] = nil
+			bleeds[k] = nil
 			k:SetNWBool('bleeding', false)
 			continue
 		end
