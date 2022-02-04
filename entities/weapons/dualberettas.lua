@@ -24,7 +24,7 @@ SWEP.CSMuzzleFlashes = true
 
 SWEP.Primary.Sound = Sound( "weapons/pistol/pistol_fire2.wav" )
 SWEP.Primary.Recoil = 0.8
-SWEP.Primary.Damage = 5
+SWEP.Primary.Damage = 12
 SWEP.Primary.NumShots = 1
 SWEP.Primary.Cone = 0.001
 SWEP.Primary.Delay = 0.13

@@ -33,8 +33,8 @@ function ENT:Initialize()
 	
 	local rarities = {
 		{ Shares = 60 },
-		{ Shares = 33 },
-		{ Shares = 7 },
+		{ Shares = 29 },
+		{ Shares = 10 },
 		{ Shares = 1  }
 	}
 
@@ -44,6 +44,16 @@ function ENT:Initialize()
 			{ Shares = 55 },
 			{ Shares = 35 },
 			{ Shares = 10 }
+		}
+	end
+
+	if math.random(1, 500) == 1 then
+		rarities = {
+			{ Shares = 0 },
+			{ Shares = 0 },
+			{ Shares = 0 },
+			{ Shares = 0 },
+			{ Shares = 100 },
 		}
 	end
 
@@ -84,11 +94,7 @@ function ENT:Use(act, call)
 		self:Remove()
 		self:EmitSound(")physics/wood/wood_crate_break" .. tostring(math.random(1,5)) .. ".wav")
 
-		local item = ents.Create("item_pickup")
-		item:SetItemID(self:GetItemToGive())
-		item:SetPos(self:GetPos())
-		item:UpdateOurItem()
-		item:Spawn()
+		GAMEMODE:SpawnItem(self:GetPos(), self:GetItemToGive())
 	end
 end
 

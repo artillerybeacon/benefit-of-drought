@@ -14,7 +14,6 @@ function ENT:Draw()
 	self.LastPos = self:GetPos()
 end
 
-
 hook.Add("HUDPaint", "drought_drawcosttext", function()
 	local trc = LocalPlayer():GetEyeTrace()
 

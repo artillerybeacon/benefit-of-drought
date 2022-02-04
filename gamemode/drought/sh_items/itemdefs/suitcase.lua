@@ -10,8 +10,6 @@ local item = {
 	obtainable = true,
 }
 
-// TODO: Do Item Effect
-
 hook.Add('DealWithOnHitProcs', 'bleed', function(atk, targ, dmg)
 
 	if targ.Inventory and targ.Inventory.suitcase then
@@ -26,20 +24,5 @@ hook.Add('DealWithOnHitProcs', 'bleed', function(atk, targ, dmg)
 	end
 
 end)
-/*
 
-
-			if atk.Inventory.suitcase then
-				local percentage = self.ItemDefs.suitcase.getEffect(atk.Inventory.suitcase)
-				local rebound = dmg:GetDamage() * percentage
-
-				local enm = dmg:GetAttacker()
-				enm.LastHit = atk
-				enm:TakeDamage(rebound)
-				enm:EmitSound("weapons/pistol/pistol_fire3.wav")
-				net.Start("DrawHitMarker")
-				net.Send(atk)
-			end
-
-*/
 return item

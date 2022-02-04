@@ -46,6 +46,7 @@ if SERVER then
 
 			for k,v in pairs(player.GetAll()) do
 				L("Spawned ", v)
+				v:StripWeapons()
 				v:Spawn()
 				v:UnSpectate()
 				v:SetTeam(1)

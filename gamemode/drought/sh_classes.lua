@@ -49,7 +49,7 @@ function GM:PlayerLoadout(ply)
 
 end
 
-hook.Add('PostSpeedModHook', 'class', function(ply, oldw, oldr, neww, newr)
+hook.Add('CalculateMovementVars', 'class', function(ply, newSpeed, newJump)
 
 	local class_str = ply:GetNWString('drought_class_str', 'class_rambo')
 	local class_tbl = Classes[class_str]
@@ -59,10 +59,9 @@ hook.Add('PostSpeedModHook', 'class', function(ply, oldw, oldr, neww, newr)
 	end
 
 	if class_tbl.default_speed then
-		neww = neww * class_tbl.default_speed
-		newr = newr * class_tbl.default_speed
+		newSpeed = newSpeed * class_tbl.default_speed
 	end
 
-	return neww, newr 
+	return newSpeed, newJump
 
 end)

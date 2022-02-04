@@ -25,6 +25,7 @@ SWEP.Primary.Damage = 12
 SWEP.Primary.NumShots = 8
 SWEP.Primary.Cone = 0.07
 SWEP.Primary.Delay = 0.9
+SWEP.Primary.Automatic = true
 
 SWEP.Primary.Ammo = "buckshot"
 SWEP.Primary.Automatic = false

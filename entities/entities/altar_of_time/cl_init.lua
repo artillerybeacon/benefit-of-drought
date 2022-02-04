@@ -27,8 +27,10 @@ hook.Add("HUDPaint", "drought_draw_waltar", function()
 		cam.Start2D()
 			surface.SetFont("drought_loot_crate_text")
 
+			local t2 = "Advance time slightly..."
 			if ent:GetIsUsed() then
 				surface.SetTextColor(color_gray:Unpack())
+				t2 = ''
 			else
 				surface.SetTextColor(color_teal:Unpack())
 			end
@@ -42,7 +44,7 @@ hook.Add("HUDPaint", "drought_draw_waltar", function()
 				surface.DrawText(txt)
 			end
 			do
-				local txt = "asdasdasdsadasdas"
+				local txt = t2
 				local tw, th = surface.GetTextSize(txt)
 
 				surface.SetTextPos(pos2d.x - tw / 2, pos2d.y + th)

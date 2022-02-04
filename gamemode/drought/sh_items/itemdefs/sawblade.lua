@@ -29,12 +29,13 @@ hook.Add('DealWithOnHitProcs', 'bleed', function(atk, targ, dmg)
 				}
 			else
 				local new = bleeds[targ]
-				new.stack = new.stack + 1
-				new.bleeder = atk
-				new.time = SysTime() + 5
-				bleeds[targ] = new
+				bleeds[targ] = {
+					stack = new.stack + 1,
+					bleeder = atk,
+					time = SysTime() + 5,
+					last_tick = new.last_tick
+				}
 			end
-			PrintMessage(3, 'Bled: ', tostring(targ))
 			targ:SetNWBool('bleeding', true)
 		end
 	end

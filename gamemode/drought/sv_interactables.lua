@@ -94,7 +94,7 @@ function DROUGHT.Interactable:SpawnInteractables()
 		if used[area:GetID()] then continue end
 
 		local ent = "loot_crate"
-		if math.random(1, 10) == 5 then
+		if math.random(1, 5) == 5 then
 			ent = math.random(1, 2) == 1 and "altar_of_combat" or "altar_of_time"
 		elseif math.random(1, 50) == 1 and not placed_gold_altar then
 			ent = "altar_of_gold"

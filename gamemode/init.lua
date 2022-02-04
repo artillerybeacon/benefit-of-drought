@@ -138,6 +138,9 @@ local LastDeathCheck = 0
 function GM:Think()
 
 	if not DROUGHT.Alive then return end
+
+	if DROUGHT.Director then DROUGHT.Director:Think() end
+
 	if not (SysTime() > LastDeathCheck + 1) then return end
 	LastDeathCheck = SysTime()
 

@@ -1,0 +1,54 @@
+-- Not deleting this file yet because of the ice affix effects.
+
+// Ice Affix
+hook.Add('EntityTakeDamage', 'IceAffix', function(target, dmg)
+
+	if IsValid(target) and target:IsPlayer() then
+		local atk = dmg:GetAttacker()
+		local affix = atk:GetNWString('affix', '')
+
+		if affix != '' and affix == 'i' then
+
+			target.Iced = true
+			GAMEMODE:RecalculateMovementVars(target)
+
+			local start = SysTime()
+			local t = 'checker' .. target:Nick()
+			timer.Create(t, 0.25, 20, function()
+				if not IsValid(target) or target:Health() < 1 then
+					timer.Remove(t)
+					return
+				end
+				
+				if SysTime() > start + 4.9 then
+					target.Iced = false
+					GAMEMODE:RecalculateMovementVars(target)
+				end
+			end)
+
+		end
+	end
+
+end)
+
+hook.Add('PostSpeedModHook', 'IceAffix', function(ply, initw, initr, neww, newr)
+
+	if ply.Iced then
+		neww = neww * 0.65
+		newr = newr * 0.65
+
+		return neww, newr
+	end
+
+end)
+
+/*
+
+	self:PostSpeedModHook(
+		ply,
+		default_walk,
+		default_walk*2,
+		ply:GetWalkSpeed(),
+		ply:GetRunSpeed()
+	)
+*/
