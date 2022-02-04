@@ -139,6 +139,12 @@ function DROUGHT.Director:AttemptSpawn()
 	local category = (DROUGHT.RollChance(Weights))
 	local amount = (DROUGHT.RollChance(HordeCount))
 	local card = (DROUGHT.RollChance(self:GetEnemyAffordableCards(category)))
+
+	if not card then
+		return stop("Unable to afford any card.")
+	end
+
+	print("C",category,card)
 	local affix, tier, cost = PickElite(card, self.Credits, SpawnCards)
 
 	local last = SysTime()
