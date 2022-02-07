@@ -51,7 +51,7 @@ else
 
 	include("affix/sh_init.lua")
 
-	include("hud/core.lua")
+	include("hud/sh_init.lua")
 end
 
 function DROUGHT.GameStarted()

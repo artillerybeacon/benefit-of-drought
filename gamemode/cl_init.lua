@@ -35,3 +35,6 @@ net.Receive("drought_modify_itemlist", function()
 
 	our_itemlist_cache[item] = qty
 end)
+
+
+print("GM:", GM)

@@ -48,8 +48,23 @@ function GM:PlayerSpawn(pl)
 end
 
 
+GM.DeathMessages = {
+	"lol %s got rekt",
+	"%s died a horrible death.",
+	"%s got mauled",
+	"%s ceased to exist",
+	"We won't forget you, %s",
+	"%s walked off a cliff",
+	"%s got pelted by their favorite enemy",
+	"%s learned the hard way",
+	"%s had a skill issue"
+}
+
 function GM:PostPlayerDeath(vic, inf, atk)
-	PrintMessage(3, "!!! " .. vic:Name() .. " died a horrible death. !!!")
+
+	local msg = self.DeathMessages[math.random(1, #self.DeathMessages)]
+	PrintMessageColor(nil, Color(255, 52, 52), "!!! ", string.format(msg, vic:Name()), " !!!")
+
 end
 
 
@@ -98,7 +113,8 @@ function GM:PlayerDeathThink(ply)
 		local h = HasManzyFriend(ply)
 		if h and h > 0 then
 
-			PrintMessage(3, ply:Name() .. " was saved by their Manzy's Best Friend.")
+			-- PrintMessage(3, ply:Name() .. " was saved by their Manzy's Best Friend.")
+			PrintMessageColor(nil, Color(52, 255, 154), ply:Name(), " was saved by their ", self.ItemRarities[4].color, "Manzy's Best Friend", Color(52, 255, 154), "!")
 			ply.Revived = true
 			ply:Spawn()
 			ply:SetTeam(1)

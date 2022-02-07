@@ -20,6 +20,7 @@ surface.CreateFont("RoR2HUD_Bombardier", {
     antialias = true
 })
 
+
 local tMat = Matrix()
 
 local xpadding_cvar = CreateClientConVar("ror2hud_xpadding", "122", true, false, "Changes how far away the HUD touches the sides of the screen.", 0, ScrW())

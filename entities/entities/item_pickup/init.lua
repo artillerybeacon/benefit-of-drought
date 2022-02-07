@@ -63,10 +63,11 @@ function ENT:Think()
 			end
 		end
 
-		if next(applicable) != nil then
+		if next(applicable) != nil or self.ForceRemove then
 			local ply = applicable[math.random(1, #applicable)]
 
 			self.Removed = true
+			self.ForceRemove = nil
 
 			SafeRemoveEntityDelayed(self, 0.1)
 			self:SetModelScale(0, 0.1)

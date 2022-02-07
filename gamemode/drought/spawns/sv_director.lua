@@ -243,6 +243,8 @@ function DROUGHT.Director:Think()
 			math.Round(r() * self:GetDifficultyCoefficient(Duration))
 		)
 
+		print(self.Credits)
+
 		PlayerNumCache = #player.GetAll()
 	end
 

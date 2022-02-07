@@ -12,7 +12,11 @@ if SERVER then
 
 		if item.rarity == 5 then
 			PrintMessageColor(nil, Color(255, 0, 0), 'A debuff item has spawned on the map. Someone has to pick it up in 60 seconds or something very bad will happen to your team, I promise.')
-			DROUGHT.Detrimental = SysTime()
+			DROUGHT.Detrimental = { 
+				time = SysTime(),
+				ply = NULL,
+				id = id
+			}
 		end
 
 		return ent
@@ -22,7 +26,7 @@ if SERVER then
 	function GM:SendItemChange(ply, id, qty)
 		net.Start("drought_modify_itemlist")
 			net.WriteString(id)
-			net.WriteUInt(qty, 32)
+			net.WriteUInt(qty or 0, 32)
 		net.Send(ply)
 	end
 
@@ -58,11 +62,6 @@ if SERVER then
 		
 		if not self.ItemDefs[id] then
 			error("OnPickupItem called with invalid parameters id=" .. id)
-		else
-			if self.ItemDefs[id].rarity == 5 and DROUGHT.Detrimental then
-				DROUGHT.Detrimental = nil
-				PrintMessage(3, 'Someone has to pay the price for your consequences.')
-			end
 		end
 
 		self:BroadcastPickupItem(ply, id)
@@ -117,26 +116,22 @@ if SERVER then
 	end)
 
 end
-/////
 
 local function loadItems()
 
-	local fpath = GAMEMODE.FolderName .. '/gamemode/drought/sh_items/itemdefs/'
-	local f,d = file.Find(fpath .. '/*.lua', 'LUA')
+	local path = GAMEMODE.FolderName .. '/gamemode/drought/sh_items/itemdefs/'
+	local files, dirs = file.Find(path .. '/*.lua', 'LUA')
 
-	--print('balls')
-	--print(f,d)
-	--PrintTable(f)
-	for _,v in pairs(f) do
-		AddCSLuaFile(fpath .. v)
-		local e = include(fpath .. v)
-		if e then
-			local cn = v:sub(1, v:len() - 4)
-			GAMEMODE.ItemDefs[cn] = e
-			if file.Exists("materials/item_" .. cn .. ".png", "GAME") then
-				resource.AddSingleFile("materials/item_" .. cn .. ".png")
+	for _, v in pairs(files) do
+		AddCSLuaFile(path .. v)
+		local data = include(path .. v)
+		if data then
+			local internal = v:sub(1, v:len() - 4)
+			GAMEMODE.ItemDefs[internal] = data
+			if file.Exists("materials/item_" .. internal .. ".png", "GAME") then
+				resource.AddSingleFile("materials/item_" .. internal .. ".png")
 			else
-				print("No Icon:", k)
+				print("No Icon:", internal)
 			end
 		end
 		print(' > Included ' .. v)
@@ -144,5 +139,16 @@ local function loadItems()
 
 end 
 
-concommand.Add('bod_force_reload_items', loadItems)
+if CLIENT then
+	concommand.Add('bod_force_reload_items_cl', loadItems)
+else
+	concommand.Add('bod_force_reload_items', function(ply)
+		if ply != NULL or (IsValid(ply) and ply:IsSuperAdmin()) then return end
+
+		loadItems()
+		for k,v in pairs(player.GetAll()) do
+			v:ConCommand('bod_force_reload_items_cl')
+		end
+	end)
+end
 hook.Add("Initialize", 'loadItems', loadItems)

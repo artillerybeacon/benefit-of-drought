@@ -94,7 +94,13 @@ function ENT:Use(act, call)
 		self:Remove()
 		self:EmitSound(")physics/wood/wood_crate_break" .. tostring(math.random(1,5)) .. ".wav")
 
-		GAMEMODE:SpawnItem(self:GetPos(), self:GetItemToGive())
+		local item_ent = GAMEMODE:SpawnItem(self:GetPos(), self:GetItemToGive())
+		if item_ent:GetSelfRarity() == 5 then
+			timer.Simple(0, function()
+				DROUGHT.Detrimental.ply = act
+				DROUGHT.Detrimental.ent = item_ent
+			end)
+		end
 	end
 end
 
