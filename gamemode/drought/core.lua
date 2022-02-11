@@ -16,6 +16,7 @@ if SERVER then
 	include("rng.lua")  -- move this into 'core'
 
 	-- sv
+	include("levels/core.lua")
 	include("spawns/sv_init.lua")
 
 	include("sv_itemeffects.lua") -- move this into sh_items to effects.lua

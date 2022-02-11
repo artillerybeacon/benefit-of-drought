@@ -1,10 +1,12 @@
-
+local function clinclude(...)
+	AddCSLuaFile(...)
+	if CLIENT then
+		include(...)
+	end
+end
 
 if SERVER then
-	AddCSLuaFile('cl_affix_render.lua')
 	util.AddNetworkString('drought_network_affix')
 end
 
-if CLIENT then
-	include('cl_affix_render.lua')
-end
+clinclude('cl_affix_render.lua')

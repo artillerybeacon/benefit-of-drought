@@ -1,7 +1,7 @@
 GM.Name    = "Benefit of Drought"
-GM.Author  = "N/A"
+GM.Author  = "twentysix"
 GM.Email   = "N/A"
-GM.Website = "N/A"
+GM.Website = "https://github.com/artillerybeacon/benefit-of-drought/"
 
 team.SetUp(1, "Survivors", Color(0, 120, 255), false)
 team.SetUp(400, "Spectators", Color(120, 120, 120), false)

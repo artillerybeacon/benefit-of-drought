@@ -21,7 +21,7 @@ DROUGHT.Interactable.MinRangeXY = -DROUGHT.Interactable.MaxRangeXY
 DROUGHT.Interactable.MaxRangeZ = DROUGHT.Interactable.MaxRangeXY / 2
 DROUGHT.Interactable.MinRangeZ = -DROUGHT.Interactable.MaxRangeZ
 
-DROUGHT.Interactable.LootAmount = 254
+DROUGHT.Interactable.LootAmount = 25
 
 DROUGHT.Interactable.LootGenerateMaxAttempts = 2500
 

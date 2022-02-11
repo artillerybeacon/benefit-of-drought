@@ -30,7 +30,7 @@ local hudAngle_cvar = CreateClientConVar("ror2hud_angle", "3", true, false, "The
 local filter_cvar = CreateClientConVar("ror2hud_filter", "3", true, false, "The texture filter used on the HUD. 0 = None, 1 = Point, 2 = Linear, 3 = Anistropic.", 0, 3)
 
 local function drawElements(offsetx, offsety, angle, drawfunc)
-    tMat:SetAngles(Angle(angle, angle, 45))
+    --tMat:SetAngles(Angle(angle, angle, 45))
 
     tMat:SetTranslation(Vector(offsetx, offsety, 0))
 
@@ -79,13 +79,13 @@ hook.Add("HUDPaint", "RoR2HUD", function()
 
 	if not DROUGHT.GameStarted() then return end
 	
-    render.PushFilterMag(filter_cvar:GetInt()) --smooth filter
-    render.PushFilterMin(filter_cvar:GetInt())
+    --render.PushFilterMag(filter_cvar:GetInt()) --smooth filter
+    --render.PushFilterMin(filter_cvar:GetInt())
 
-    local xpadding = xpadding_cvar:GetInt()
-    local ypadding = ypadding_cvar:GetInt()
-    local armorThickness = armorThickness_cvar:GetInt()
-    local hudAngle = -hudAngle_cvar:GetInt()
+    local xpadding = 66
+    local ypadding = 66
+    local armorThickness = 1
+    local hudAngle = -3
 
     --[[------------------------
                Health
@@ -128,25 +128,55 @@ hook.Add("HUDPaint", "RoR2HUD", function()
 
     drawElements(xpadding+6, ScrH()-ypadding-34, hudAngle, function()
         draw.TextShadow({
-            text = LocalPlayer():Nick(),
+            text = "Lv.1",
             font = "RoR2HUD_Bombardier",
-            pos = {0, 12},
+            pos = {0, 17},
             color = color_white,
             xalign = TEXT_ALIGN_LEFT,
             yalign = TEXT_ALIGN_CENTER
         }, 1, 150)
-        draw.TextShadow({
+		
+		--surface.SetDrawColor(210, 210, 210, 180)
+        --surface.SetMaterial(hpBarMat)
+        --surface.DrawTexturedRect(50, 10, 360, 10)
+		drawUVBar(hpBarMat, {60, 60, 60, 180}, 50, 13, 360, 10, 8)
+
+		local lvl_rat = 0.5
+		
+		drawUVBar(hpBarMat, {80, 255, 255, 255}, 50, 13, 360 * lvl_rat, 10, 8)
+
+		--drawUVBar(mat, color, xpos, ypos, width, height, pixels)
+        --drawUVBar(hpBarMat, {94, 173, 48, 255}, 0, 0, 430*hpratio, 30, 8)
+        /*draw.TextShadow({
             text = "$"..string.Comma(tostring(me:GetNWInt("drought_money", 0))),
             font = "RoR2HUD_Bombardier",
             pos = {415, 12},
             color = color_white,
             xalign = TEXT_ALIGN_RIGHT,
             yalign = TEXT_ALIGN_CENTER
-        }, 1, 150)
+        }, 1, 150)*/
     end) -- name, fps/ping text
 
-    render.PopFilterMag()
-    render.PopFilterMin()
+    drawElements(xpadding+6, ypadding-34, Angle(), function()
+		
+        surface.SetDrawColor(255, 255, 255, 180)
+        surface.SetMaterial(barBackMat)
+        surface.DrawTexturedRect(0, 0, 215, 30)
+
+        draw.TextShadow({
+            text = "$" .. tostring(LocalPlayer():GetNWInt("drought_money", 0)),--"Lv.1",
+            font = "RoR2HUD_Bombardier",
+            pos = {8, 15},
+            color = color_white,
+            xalign = TEXT_ALIGN_LEFT,
+            yalign = TEXT_ALIGN_CENTER
+        }, 1, 150)
+
+		--surface.DrawLine(0, 0, 10000, 0)
+    end) -- name, fps/ping text
+
+    --render.PopFilterMag()
+    --render.PopFilterMin()
 end)
 
 

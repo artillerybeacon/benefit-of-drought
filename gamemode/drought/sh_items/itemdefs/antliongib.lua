@@ -11,7 +11,6 @@ local item = {
 }
 
 
-
 hook.Add('DealWithOnHitProcs', 'damagereduc', function(atk, targ, dmg)
 
 	if targ.Inventory and targ.Inventory.antliongib then

@@ -78,13 +78,7 @@ function GM:OnNPCKilled(npc, atk, inf)
 	end
 
 	atk:SetFrags(atk:Frags() + 1)
-
-	if IsValid(atk) and atk:IsPlayer() and next(atk.Inventory) != nil then
-		if atk.Inventory.register then
-			local extraCash = self.ItemDefs.register.getEffect(atk.Inventory.register)
-			atk:SetNWInt("drought_money", atk:GetNWInt("drought_money", 0) + extraCash)
-		end
-	end
+	
 end
 
 concommand.Add("zambie", function(ply)

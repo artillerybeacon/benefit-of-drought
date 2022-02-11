@@ -53,10 +53,15 @@ game.CleanUpMap()
 local PlayerNumCache = 0
 
 function DROUGHT.Director:GetDifficultyCoefficient(dur)
-	local base = dur / 150 -- 2 and a half minutes for 1 scale point
+	local base = dur / 60 -- minutes
+
 	local pdiff = 0.3 * math.min(0, PlayerNumCache - 1) + 1
-	-- TODO: Get difficulty percentage increase.
-	return base * pdiff
+
+	local stagediff = 1.15 ^ (0) -- TODO: Stages
+
+	local time = 0.0506 * (1) * (PlayerNumCache ^ 0.2) -- TODO: Get difficulty percentage increase. (parenthesis)
+	
+	return (pdiff + base * time) * stagediff
 end
 
 local r = math.random
@@ -115,13 +120,7 @@ end
 
 local PickElite = include('sv_elite_picker.lua')
 function DROUGHT.Director:AttemptSpawn()
-	local rng = 1 / math.Remap(
-		r(),
-		0,
-		1,
-		self.MinSpawnChance,
-		self.MaxSpawnChance
-	)
+	local rng = 1 / 2
 
 	if r() < rng then
 		L ("Spawn failed due to RNG.", ' 1 / ', rng)
@@ -176,7 +175,8 @@ function DROUGHT.Director:AttemptSpawn()
 
 		L('Spawning ', card, '(', count, '/', amount, ')(', affix, tier, ')')
 		local pos = self:GetRandomPosNearPly(target)
-		local e = self:SpawnEnemy(card, pos, affix, tier)
+		local c = self:GetDifficultyCoefficient(SysTime() - DROUGHT.StartTime)
+		local e = self:SpawnEnemy(card, pos, affix, tier, c, DROUGHT:GetEnemyLevel(c, PlayerNumCache))
 
 		net.Start("drought_combat_beam")
 			net.WriteVector(pos + Vector(0, 0, 100) + VectorRand() * 20)
@@ -189,11 +189,14 @@ function DROUGHT.Director:AttemptSpawn()
 end
 
 local EliteCards = include('elite_cards.lua')
-function DROUGHT.Director:SpawnEnemy(card, pos, affix, tier)
+function DROUGHT.Director:SpawnEnemy(card, pos, affix, tier, coef, lvl)
+	local SpawnStats = SpawnCards[card].stats
+
 	local e = ents.Create(card)
 	e:SetPos(pos)
 	e:Spawn()
-	e:SetNWInt('reward', SpawnCards[card].reward)
+	e:SetNWInt('reward', math.ceil(SpawnCards[card].reward * 2 * coef))
+	e:SetNWInt('level', lvl)
 	e:SetNWString('affix', affix)
 
 	if SpawnCards[card].spawn then
@@ -201,6 +204,11 @@ function DROUGHT.Director:SpawnEnemy(card, pos, affix, tier)
 	end
 
 	if affix == nil or tier == nil then return e end
+
+	print(card, pos, affix, tier, lvl, e)
+
+	e:SetHealth(SpawnStats.base_hp + (SpawnStats.hp_lvl * lvl))
+	e:SetMaxHealth(e:Health())
 
 	timer.Simple(0, function()
 		net.Start('drought_network_affix')
@@ -243,6 +251,11 @@ function DROUGHT.Director:Think()
 			math.Round(r() * self:GetDifficultyCoefficient(Duration))
 		)
 
+
+		--self.MaxSpawnChance = math.max(
+		--	self.MinSpawnChance,
+		--	2.5 - (self:GetDifficultyCoefficient(Duration) / 3.3333) -- 3 1/3 minutes, better spawn chance
+		--)
 		print(self.Credits)
 
 		PlayerNumCache = #player.GetAll()

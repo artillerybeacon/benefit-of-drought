@@ -27,10 +27,7 @@ local function RenderFireEffect(k)
 	if SysTime() > k.lastFireEffect + 0.15 then
 		k.lastFireEffect = SysTime()
 
-		local r = 1
-		if flame_offsets[k:GetClass()] then
-			r = flame_offsets[k:GetClass()]
-		end
+		local r = flame_offsets[k:GetClass()] or 1
 
 		local vOffset = k:GetPos() + Vector(0, 0, k:OBBMaxs().z * r)
 		local emitter = ParticleEmitter( vOffset, false )
@@ -67,11 +64,7 @@ local function RenderIceEffect(k)
 	if SysTime() > k.lastSnowEffect + 0.15 then
 		k.lastSnowEffect = SysTime()
 
-		-- chat.AddText"blals"
-		local r = 1
-		if flame_offsets[k:GetClass()] then
-			r = flame_offsets[k:GetClass()]
-		end
+		local r = flame_offsets[k:GetClass()] or 1
 
 		local vOffset = k:GetPos() + Vector(0, 0, k:OBBMaxs().z * r)
 		local emitter = ParticleEmitter( vOffset, false )

@@ -57,7 +57,9 @@ GM.DeathMessages = {
 	"%s walked off a cliff",
 	"%s got pelted by their favorite enemy",
 	"%s learned the hard way",
-	"%s had a skill issue"
+	"%s had a skill issue",
+	"You weren't needed anyway, %s",
+	"%s went back home",
 }
 
 function GM:PostPlayerDeath(vic, inf, atk)
@@ -175,4 +177,9 @@ function GM:Think()
 
 	return
 
+end
+
+-- this doesnt work at all and im too lazy to remove it
+function GM:CreateEntityRagdoll( owner, ragdoll )
+	SafeRemoveEntityDelayed( ragdoll, 8 )
 end

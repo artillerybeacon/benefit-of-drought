@@ -5,11 +5,24 @@ if not ConVarExists("bod_item_qty_font") then
 	CreateClientConVar("bod_item_qty_font", "BudgetLabel", true, false, "Font used for item quantities")
 end
 
+local function drawUVBar(mat, color, xpos, ypos, width, height, pixels)
+    if width < 1 then return end
+    surface.SetMaterial(mat)
+    surface.SetDrawColor(unpack(color)) -- unpack(color)
+    surface.DrawTexturedRectUV(xpos, ypos, 4, height, 0, 0, 0.125, 1)
+    surface.DrawTexturedRectUV(xpos+4, ypos, width-(pixels)+1, height, 0.125, 0, 0.875, 1)
+    surface.DrawTexturedRectUV(xpos+width-4, ypos, 4, height, 0.875, 0, 1, 1)
+end
+
+local irow = 10
+
+local hpBarMat = Material("ror2hud/barback.png")
+
 local iwidth = GetConVar("bod_item_icon_width"):GetInt()
-local width = iwidth * 6
+local width = iwidth * irow
 cvars.AddChangeCallback("bod_item_icon_width", function(cvar, old, new)
 	iwidth = tonumber(new)
-	width = iwidth * 6
+	width = iwidth * irow
 end)
 
 local ifont = GetConVar("bod_item_qty_font"):GetString()
@@ -26,21 +39,26 @@ our_itemlist_cache = our_itemlist_cache or {}
 our_itemlist_material_cache = our_itemlist_material_cache or {}
 
 local me = LocalPlayer()
+
+local xp = 33
+local yp = 16
 hook.Add("HUDPaint", "DroughtHudItem", function()
 	if not IsValid(me) then
 		me = LocalPlayer()
 	end
 
-	if not me:Alive() then return end
+	-- if not me:Alive() then return end
 	if not DROUGHT.GameStarted() then return end
 
-	surface.SetDrawColor(90, 90, 90, 150)
-
-	if not lastItemY then
-		surface.DrawRect(ScrW() - width - border, border, width, 60)
-	else
-		surface.DrawRect(ScrW() - width - border, border, width, iwidth * lastItemY)
-	end
+	local bgw, bgh = iwidth * (irow), (iwidth) * (lastItemY or 0) 
+    surface.SetDrawColor(255, 255, 255, 180)
+    surface.SetMaterial(hpBarMat)
+    surface.DrawTexturedRect(
+		ScrW() / 2 - bgw / 2,
+		yp + 17,-- + --bgh,
+		bgw,
+		bgh
+	)
 
 	surface.SetDrawColor(255, 255, 255, 255)
 
@@ -49,7 +67,7 @@ hook.Add("HUDPaint", "DroughtHudItem", function()
 	for k,v in pairs(our_itemlist_cache) do
 		itemPointer = itemPointer + 1
 
-		if itemPointer > 6 then
+		if itemPointer > irow then
 			itemPointer = 1
 			itemPointerY = itemPointerY + 1
 		end
@@ -58,11 +76,11 @@ hook.Add("HUDPaint", "DroughtHudItem", function()
 			our_itemlist_material_cache[k] = Material("materials/item_" .. k .. ".png")
 		end
 
-		local xpos = ScrW() - border - (iwidth * itemPointer)  + iborder
-		local ypos = border + iborder + (iwidth * itemPointerY)
+		local xpos = ScrW() / 2 - bgw / 2 + (iwidth * (itemPointer - 1)) + iborder -- - xp - (iwidth * itemPointer) + border - iborder
+		local ypos = yp + 17 + (iwidth * (itemPointerY)) + iborder--  + border * 2 + iborder
 		
 		surface.SetMaterial(our_itemlist_material_cache[k])
-		surface.DrawTexturedRect(xpos, ypos, iwidth - iborder * 2, iwidth - iborder * 2)
+		surface.DrawTexturedRect(xpos, ypos, iwidth - border, iwidth - border)
 
 		if v > 1 then
 			surface.SetTextColor(255, 255, 255, 255)

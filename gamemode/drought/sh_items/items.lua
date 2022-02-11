@@ -38,7 +38,7 @@ if SERVER then
 		end
 
 		ply.Inventory = {}
-		ply:RecalculateVars()
+		ply:RecalculateVars() 
 	end
 
 	util.AddNetworkString("drought_send_pickup")
@@ -102,7 +102,7 @@ if SERVER then
 	end)
 
 	concommand.Add("bod_admin_clearitems", function(ply)
-		if !ply:IsSuperAdmin() then return end 
+		--if !ply:IsSuperAdmin() then return end 
 
 		local items = ents.FindByClass("item_pickup")
 

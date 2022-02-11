@@ -10,7 +10,10 @@ local function clinclude(...)
 	end
 end
 
-shinclude('sh_hitmarker.lua')
-clinclude('cl_itemhud.lua')
-clinclude('cl_realhud.lua')
-clinclude('cl_thirdperson.lua')
+local function svinclude(...)
+	if SERVER then
+		include(...)
+	end
+end
+
+svinclude'enemylevel.lua'
