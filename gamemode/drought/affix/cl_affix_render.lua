@@ -1,6 +1,6 @@
 
 
-local elites = {}
+elites = elites or {}
 
 local flame_offsets = {
 	npc_headcrab = 0,
@@ -14,6 +14,8 @@ net.Receive("drought_network_affix", function()
 	local affix = net.ReadString()
 	
 	elites[ent] = affix
+
+	chat.AddText('ent: ', ent, ', aff: ', affix)
 end)
 
 local ca = Color(218, 123, 0)
@@ -88,9 +90,48 @@ local function RenderIceEffect(k)
 	end
 end
 
+local function RenderLightningEffect(k)
+	k:SetColor(Color(255, 255, 0))
+
+	if not k.lastZapEffect then
+		k.lastZapEffect = SysTime()
+	end
+
+	if SysTime() > k.lastZapEffect + 0.15 then
+		k.lastZapEffect = SysTime()
+
+		local r = flame_offsets[k:GetClass()] or 1
+
+		local vOffset = k:GetPos() + Vector(0, 0, k:OBBMaxs().z * r)
+		local emitter = ParticleEmitter( vOffset, false )
+		local s = 15
+		for i = 0, 3 do
+			local part = emitter:Add("trails/electric", vOffset + VectorRand() * k:OBBMaxs().x * 1.5) -- Create a new particle at pos
+			if (part) then
+				part:SetDieTime(.15) -- How long the particle should "live"
+				part:SetStartAlpha(255) -- Starting alpha of the particle
+				part:SetEndAlpha(255) -- Particle size at the end if its lifetime
+				part:SetStartSize(s * math.random()) -- Starting size
+				part:SetEndSize(part:GetStartSize()) -- Size when removed
+				--part:SetGravity(0) -- Gravity of the particle
+				--part:SetVelocity(0) -- Initial velocity of the particle
+				--part:SetAngleVelocity(0)
+				--part:SetStartLength(s*2)
+				--part:SetEndLength(s*2)
+				part:SetAngles(AngleRand() * 15)
+				part:SetColor(255, 255, 0)
+			end
+
+		end
+
+		emitter:Finish()
+	end
+end
+
 local renderers = {
 	['f'] = RenderFireEffect,
 	['i'] = RenderIceEffect,
+	['l'] = RenderLightningEffect,
 }
 
 hook.Add("Think", "drought_draw_affix", function()

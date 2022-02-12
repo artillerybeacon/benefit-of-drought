@@ -54,11 +54,8 @@ local PlayerNumCache = 0
 
 function DROUGHT.Director:GetDifficultyCoefficient(dur)
 	local base = dur / 60 -- minutes
-
-	local pdiff = 0.3 * math.min(0, PlayerNumCache - 1) + 1
-
+	local pdiff = 0.3 * math.min(0, PlayerNumCache - 1) + 1 -- player difficulty multiplier
 	local stagediff = 1.15 ^ (0) -- TODO: Stages
-
 	local time = 0.0506 * (1) * (PlayerNumCache ^ 0.2) -- TODO: Get difficulty percentage increase. (parenthesis)
 	
 	return (pdiff + base * time) * stagediff
@@ -101,20 +98,20 @@ function DROUGHT.Director:GetValidPlayerChoices()
 	return ret
 end
 
-function DROUGHT.Director:GetEnemyAffordableCards(category)
+function DROUGHT.Director:GetAvailableCards(category)
 
 	category = category or 'Basic'
 
-	local affordable = {}
+	local valid = {}
 	for k,v in pairs(SpawnCards) do
 
 		if self.Credits >= v.cost and v.t == category then
-			affordable[k] = v
+			valid[k] = v
 		end
 
 	end
 
-	return affordable
+	return valid
 
 end
 
@@ -137,7 +134,7 @@ function DROUGHT.Director:AttemptSpawn()
 
 	local category = (DROUGHT.RollChance(Weights))
 	local amount = (DROUGHT.RollChance(HordeCount))
-	local card = (DROUGHT.RollChance(self:GetEnemyAffordableCards(category)))
+	local card = (DROUGHT.RollChance(self:GetAvailableCards(category)))
 
 	if not card then
 		return stop("Unable to afford any card.")
@@ -163,8 +160,8 @@ function DROUGHT.Director:AttemptSpawn()
 		if (#ents.FindByClass('npc_*') >= 40) then
 			return stop("too many enemies")
 		end
-		-- The enemy isn't too cheap TODO
-		if false then
+		-- The enemy isn't too cheap
+		if (self.Credits > cost * 6) then
 			return stop("enemy spawn is too cheap")
 		end
 
@@ -210,11 +207,11 @@ function DROUGHT.Director:SpawnEnemy(card, pos, affix, tier, coef, lvl)
 	e:SetHealth(SpawnStats.base_hp + (SpawnStats.hp_lvl * lvl))
 	e:SetMaxHealth(e:Health())
 
-	timer.Simple(0, function()
+	timer.Simple(0.1, function()
 		net.Start('drought_network_affix')
 			net.WriteEntity(e)
 			net.WriteString(affix)
-		net.SendPVS(e:GetPos())
+		net.Broadcast()
 
 		local oldHealth, oldMhealth = e:Health(), e:GetMaxHealth()
 		local mult = EliteCards[tier].HPMult
@@ -248,7 +245,9 @@ function DROUGHT.Director:Think()
 
 		self.Credits = self.Credits + math.max(
 			1,
-			math.Round(r() * self:GetDifficultyCoefficient(Duration))
+			-- Using the stats of a Slow director
+			0.75 * (1 + 0.4 * self:GetDifficultyCoefficient(Duration)) * (PlayerNumCache + 1) / 2
+			-- math.Round(r() * self:GetDifficultyCoefficient(Duration))
 		)
 
 
@@ -276,6 +275,6 @@ end
 
 concommand.Add('bod_force_next_spawn', function()
 	DROUGHT.Director.LastSpawn = -1e9
-	DROUGHT.Director.Credits = 50000
+	DROUGHT.Director.Credits = 100
 	
 end)

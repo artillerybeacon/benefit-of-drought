@@ -183,3 +183,13 @@ end
 function GM:CreateEntityRagdoll( owner, ragdoll )
 	SafeRemoveEntityDelayed( ragdoll, 8 )
 end
+
+concommand.Add('m', function(p)
+
+	local e = ents.Create'proc_missile'
+	e:SetPos(p:GetPos() + Vector(0, 0, 100))
+	e:Spawn()
+	e:SetProcOwner(p)
+	e:SetDamage(10)
+
+end)

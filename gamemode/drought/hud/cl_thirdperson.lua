@@ -20,7 +20,7 @@ hook.Add( "CalcView", "drought_thirdperson", function( ply, pos, angles, fov )
 	}
 end )
 
-hook.Add("PostDrawOpaqueRenderables", "asdasd", function()
+hook.Remove("PostDrawOpaqueRenderables", "asdasd", function()
 	for k,v in pairs(ents.FindByClass("npc_cscanner")) do
 		render.DrawLine(v:GetPos(), v:GetPos() + v:GetForward() * 5000 - v:GetUp() * 15, Color(255, 255, 255))
 	end

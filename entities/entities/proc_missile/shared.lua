@@ -9,5 +9,6 @@ function ENT:SetupDataTables()
 
 	self:NetworkVar('Entity', 0, 'ProcOwner')
 	self:NetworkVar('Int', 0, 'Damage')
+	self:NetworkVar('Entity', 1, 'Target')
 
 end
